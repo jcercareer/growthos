@@ -2,6 +2,7 @@ import { createPricingPagePack } from '../../repositories/pricingPagePacks';
 import { generateJSON } from '../../aiClient';
 import { PricingPagePackSchema } from '../../aiSchemas';
 import type { PricingPagePack, Product } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const CAREERSCALEUP_FEATURES = `
 FREE TIER: Basic ATS Resume Scanner, limited job matches
@@ -89,15 +90,16 @@ export async function generatePricingPagePackForProduct(params: {
 }): Promise<PricingPagePack> {
   const { product, customNotes } = params;
 
-  // Build prompts
-  const systemPrompt = buildPricingPagePackSystemPrompt(
-    product as 'CareerScaleUp' | 'Zevaux'
+  // Build prompts with global context
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildPricingPagePackSystemPrompt(
+      product as 'CareerScaleUp' | 'Zevaux'
+    ),
+    buildPricingPagePackUserPrompt({
+      product: product as 'CareerScaleUp' | 'Zevaux',
+      customNotes,
+    })
   );
-
-  const userPrompt = buildPricingPagePackUserPrompt({
-    product: product as 'CareerScaleUp' | 'Zevaux',
-    customNotes,
-  });
 
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);

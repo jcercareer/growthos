@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { generateJSON } from '../../aiClient';
 import { z } from 'zod';
 import type { Product, NicheVariantResponse } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const CAREERSCALEUP_FEATURES = `
 CORE FEATURES: ATS Resume Scanner, AI Resume Writer, Cover Letter Writer, Job Match Engine, Job Search Automations, AI Interview Trainer, Skills Gap Recommender, Chrome Extension
@@ -239,19 +240,20 @@ export async function generateNicheVariantPack(params: {
     throw new Error('Messaging not found');
   }
 
-  // Build prompts
-  const systemPrompt = buildNicheVariantSystemPrompt(
-    product as 'CareerScaleUp' | 'Zevaux',
-    niche
+  // Build prompts with global context
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildNicheVariantSystemPrompt(
+      product as 'CareerScaleUp' | 'Zevaux',
+      niche
+    ),
+    buildNicheVariantUserPrompt({
+      product,
+      niche,
+      basePersona: persona,
+      baseMessaging: messaging,
+      customNotes: notes,
+    })
   );
-
-  const userPrompt = buildNicheVariantUserPrompt({
-    product,
-    niche,
-    basePersona: persona,
-    baseMessaging: messaging,
-    customNotes: notes,
-  });
 
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);

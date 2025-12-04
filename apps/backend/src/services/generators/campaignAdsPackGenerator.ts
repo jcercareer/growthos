@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { generateJSON } from '../../aiClient';
 import { z } from 'zod';
 import type { Product, AudienceType, AdsPackResponse } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const CAREERSCALEUP_FEATURES = `
 CORE FEATURES: ATS Resume Scanner, AI Resume Writer, Cover Letter Writer, Job Match Engine, Job Search Automations, AI Interview Trainer, Skills Gap Recommender, Chrome Extension
@@ -253,19 +254,20 @@ export async function generateAdsPackForPersona(params: {
     throw new Error('Messaging not found');
   }
 
-  // Build prompts
-  const systemPrompt = buildAdsPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux');
-
-  const userPrompt = buildAdsPackUserPrompt({
-    product,
-    audienceType,
-    personaDescription: persona.description,
-    personaPainPoints: persona.pain_points,
-    personaGoals: persona.goals,
-    messagingHeadline: messaging.headline,
-    messagingHook: messaging.emotional_hook,
-    campaignAngle,
-  });
+  // Build prompts with global context
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildAdsPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux'),
+    buildAdsPackUserPrompt({
+      product,
+      audienceType,
+      personaDescription: persona.description,
+      personaPainPoints: persona.pain_points,
+      personaGoals: persona.goals,
+      messagingHeadline: messaging.headline,
+      messagingHook: messaging.emotional_hook,
+      campaignAngle,
+    })
+  );
 
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);

@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { createPaidAdsPack } from '../../repositories/paidAdsPacks';
 import { generateJSON } from '../../aiClient';
 import { PaidAdsPackSchema } from '../../aiSchemas';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { PaidAdsPack } from '@growth-os/shared';
 
 const CAREERSCALEUP_FEATURES = `
@@ -115,12 +116,12 @@ export async function generatePaidAdsPackForPersona(params: {
     messaging = await getMessagingById(messagingId);
   }
 
-  // Build prompts
-  const systemPrompt = buildPaidAdsPackSystemPrompt(
+  // Build prompts with global context
+  const moduleSystemPrompt = buildPaidAdsPackSystemPrompt(
     persona.product as 'CareerScaleUp' | 'Zevaux'
   );
 
-  const userPrompt = buildPaidAdsPackUserPrompt({
+  const moduleUserPrompt = buildPaidAdsPackUserPrompt({
     product: persona.product as 'CareerScaleUp' | 'Zevaux',
     audienceType: persona.audience_type,
     personaDescription: persona.description,
@@ -130,8 +131,13 @@ export async function generatePaidAdsPackForPersona(params: {
     customNotes,
   });
 
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    moduleSystemPrompt,
+    moduleUserPrompt
+  );
+
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = PaidAdsPackSchema.parse(aiOutput);

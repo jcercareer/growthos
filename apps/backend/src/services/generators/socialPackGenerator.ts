@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { createSocialPack } from '../../repositories/socialPacks';
 import { generateJSON } from '../../aiClient';
 import { SocialPackSchema } from '../../aiSchemas';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { SocialPack } from '@growth-os/shared';
 
 const CAREERSCALEUP_FEATURES = `
@@ -112,12 +113,12 @@ export async function generateSocialPackForPersona(params: {
     messaging = await getMessagingById(messagingId);
   }
 
-  // Build prompts
-  const systemPrompt = buildSocialPackSystemPrompt(
+  // Build prompts with global context
+  const moduleSystemPrompt = buildSocialPackSystemPrompt(
     persona.product as 'CareerScaleUp' | 'Zevaux'
   );
 
-  const userPrompt = buildSocialPackUserPrompt({
+  const moduleUserPrompt = buildSocialPackUserPrompt({
     product: persona.product as 'CareerScaleUp' | 'Zevaux',
     audienceType: persona.audience_type,
     personaDescription: persona.description,
@@ -127,8 +128,13 @@ export async function generateSocialPackForPersona(params: {
     customNotes,
   });
 
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    moduleSystemPrompt,
+    moduleUserPrompt
+  );
+
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = SocialPackSchema.parse(aiOutput);

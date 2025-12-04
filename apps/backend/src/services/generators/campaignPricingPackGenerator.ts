@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { generateJSON } from '../../aiClient';
 import { z } from 'zod';
 import type { Product, AudienceType, PricingPackResponse } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const PricingPackSchema = z.object({
   hero: z.object({
@@ -222,15 +223,16 @@ export async function generatePricingPackForPersona(params: {
     throw new Error('Messaging not found');
   }
 
-  const systemPrompt = buildPricingPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux');
-
-  const userPrompt = buildPricingPackUserPrompt({
-    product,
-    audienceType,
-    personaDescription: persona.description,
-    personaPainPoints: persona.pain_points,
-    messagingHeadline: messaging.headline,
-  });
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildPricingPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux'),
+    buildPricingPackUserPrompt({
+      product,
+      audienceType,
+      personaDescription: persona.description,
+      personaPainPoints: persona.pain_points,
+      messagingHeadline: messaging.headline,
+    })
+  );
 
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
   const validatedOutput = PricingPackSchema.parse(aiOutput);

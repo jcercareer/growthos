@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { createFunnel } from '../../repositories/funnels';
 import { generateJSON } from '../../aiClient';
 import { FunnelSchema } from '../../aiSchemas';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { Funnel, FunnelType, ToneType } from '@growth-os/shared';
 
 const CAREERSCALEUP_FEATURES = `
@@ -241,13 +242,13 @@ export async function generateFunnelForPersona(params: {
     messaging = await getMessagingById(messagingId);
   }
 
-  // Build prompts
-  const systemPrompt = buildFunnelSystemPrompt(
+  // Build prompts with global context
+  const moduleSystemPrompt = buildFunnelSystemPrompt(
     persona.product as 'CareerScaleUp' | 'Zevaux',
     persona.audience_type
   );
 
-  const userPrompt = buildFunnelUserPrompt({
+  const moduleUserPrompt = buildFunnelUserPrompt({
     product: persona.product as 'CareerScaleUp' | 'Zevaux',
     audienceType: persona.audience_type,
     funnelType,
@@ -260,8 +261,13 @@ export async function generateFunnelForPersona(params: {
     customNotes,
   });
 
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    moduleSystemPrompt,
+    moduleUserPrompt
+  );
+
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = FunnelSchema.parse(aiOutput);

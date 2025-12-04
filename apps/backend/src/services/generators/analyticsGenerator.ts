@@ -1,6 +1,7 @@
 import { generateJSON } from '../../aiClient';
 import { z } from 'zod';
 import type { AnalyticsInput, AnalyticsResponse } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const AnalyticsResponseSchema = z.object({
   summary: z.string().min(100).max(2000),
@@ -124,8 +125,10 @@ Output ONLY valid JSON. No markdown, no commentary.
 export async function analyzePerformanceData(
   analytics: AnalyticsInput[]
 ): Promise<AnalyticsResponse> {
-  const systemPrompt = buildAnalyticsSystemPrompt();
-  const userPrompt = buildAnalyticsUserPrompt(analytics);
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildAnalyticsSystemPrompt(),
+    buildAnalyticsUserPrompt(analytics)
+  );
 
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
   const validatedOutput = AnalyticsResponseSchema.parse(aiOutput);

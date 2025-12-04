@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { generateJSON } from '../../aiClient';
 import { z } from 'zod';
 import type { Product, AudienceType, SocialProofPackResponse } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const SocialProofPackSchema = z.object({
   testimonialCards: z.array(z.object({
@@ -201,16 +202,17 @@ export async function generateSocialProofPackForPersona(params: {
     throw new Error('Messaging not found');
   }
 
-  const systemPrompt = buildSocialProofPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux');
-
-  const userPrompt = buildSocialProofPackUserPrompt({
-    product,
-    audienceType,
-    personaDescription: persona.description,
-    personaPainPoints: persona.pain_points,
-    personaGoals: persona.goals,
-    messagingHeadline: messaging.headline,
-  });
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildSocialProofPackSystemPrompt(product as 'CareerScaleUp' | 'Zevaux'),
+    buildSocialProofPackUserPrompt({
+      product,
+      audienceType,
+      personaDescription: persona.description,
+      personaPainPoints: persona.pain_points,
+      personaGoals: persona.goals,
+      messagingHeadline: messaging.headline,
+    })
+  );
 
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
   const validatedOutput = SocialProofPackSchema.parse(aiOutput);

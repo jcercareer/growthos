@@ -4,6 +4,7 @@ import { createLinkedInViralPack } from '../../repositories/linkedInViralPacks';
 import { generateJSON } from '../../aiClient';
 import { LinkedInViralPackSchema } from '../../aiSchemas';
 import type { LinkedInViralPack } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 const CAREERSCALEUP_FEATURES = `
 CORE FEATURES: ATS Resume Scanner, AI Resume Writer, Cover Letter Writer, Job Match Engine, Job Search Automations, AI Interview Trainer, Skills Gap Recommender, Chrome Extension
@@ -130,20 +131,21 @@ export async function generateLinkedInViralPackForPersona(params: {
     messaging = await getMessagingById(messagingId);
   }
 
-  // Build prompts
-  const systemPrompt = buildLinkedInViralPackSystemPrompt(
-    persona.product as 'CareerScaleUp' | 'Zevaux'
+  // Build prompts with global context
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildLinkedInViralPackSystemPrompt(
+      persona.product as 'CareerScaleUp' | 'Zevaux'
+    ),
+    buildLinkedInViralPackUserPrompt({
+      product: persona.product as 'CareerScaleUp' | 'Zevaux',
+      audienceType: persona.audience_type,
+      personaDescription: persona.description,
+      personaPainPoints: persona.pain_points,
+      personaGoals: persona.goals,
+      messagingHeadline: messaging?.headline,
+      customNotes,
+    })
   );
-
-  const userPrompt = buildLinkedInViralPackUserPrompt({
-    product: persona.product as 'CareerScaleUp' | 'Zevaux',
-    audienceType: persona.audience_type,
-    personaDescription: persona.description,
-    personaPainPoints: persona.pain_points,
-    personaGoals: persona.goals,
-    messagingHeadline: messaging?.headline,
-    customNotes,
-  });
 
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);

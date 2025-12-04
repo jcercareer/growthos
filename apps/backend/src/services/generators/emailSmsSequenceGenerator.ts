@@ -3,6 +3,7 @@ import { getMessagingById } from '../../repositories/messaging';
 import { createEmailSmsSequence } from '../../repositories/emailSmsSequences';
 import { generateJSON } from '../../aiClient';
 import { EmailSmsSequenceSchema } from '../../aiSchemas';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { EmailSmsSequence, SequenceType } from '@growth-os/shared';
 
 const CAREERSCALEUP_FEATURES = `
@@ -126,13 +127,13 @@ export async function generateEmailSmsSequenceForPersona(params: {
     messaging = await getMessagingById(messagingId);
   }
 
-  // Build prompts
-  const systemPrompt = buildEmailSmsSequenceSystemPrompt(
+  // Build prompts with global context
+  const moduleSystemPrompt = buildEmailSmsSequenceSystemPrompt(
     persona.product as 'CareerScaleUp' | 'Zevaux',
     persona.audience_type
   );
 
-  const userPrompt = buildEmailSmsSequenceUserPrompt({
+  const moduleUserPrompt = buildEmailSmsSequenceUserPrompt({
     product: persona.product as 'CareerScaleUp' | 'Zevaux',
     audienceType: persona.audience_type,
     sequenceType,
@@ -143,8 +144,13 @@ export async function generateEmailSmsSequenceForPersona(params: {
     customNotes,
   });
 
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    moduleSystemPrompt,
+    moduleUserPrompt
+  );
+
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = EmailSmsSequenceSchema.parse(aiOutput);

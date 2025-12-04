@@ -2,6 +2,7 @@ import { createSocialProofPack } from '../../repositories/socialProofPacks';
 import { generateJSON } from '../../aiClient';
 import { SocialProofPackSchema } from '../../aiSchemas';
 import type { SocialProofPack, Product } from '@growth-os/shared';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 
 export function buildSocialProofPackSystemPrompt(product: 'CareerScaleUp' | 'Zevaux') {
   return `
@@ -73,15 +74,16 @@ export async function generateSocialProofPackForProduct(params: {
 }): Promise<SocialProofPack> {
   const { product, customNotes } = params;
 
-  // Build prompts
-  const systemPrompt = buildSocialProofPackSystemPrompt(
-    product as 'CareerScaleUp' | 'Zevaux'
+  // Build prompts with global context
+  const { systemPrompt, userPrompt } = buildPrompt(
+    buildSocialProofPackSystemPrompt(
+      product as 'CareerScaleUp' | 'Zevaux'
+    ),
+    buildSocialProofPackUserPrompt({
+      product: product as 'CareerScaleUp' | 'Zevaux',
+      customNotes,
+    })
   );
-
-  const userPrompt = buildSocialProofPackUserPrompt({
-    product: product as 'CareerScaleUp' | 'Zevaux',
-    customNotes,
-  });
 
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);

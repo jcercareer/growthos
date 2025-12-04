@@ -4,16 +4,15 @@
     "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "baseUrl": "./",
+    "baseUrl": "../../",
     "paths": {
-      "@growth-os/shared": ["../../packages/shared/src/index.ts"]
+      "@growth-os/shared": ["packages/shared/src/index.ts"]
     }
   },
   "include": ["src/**/*"],

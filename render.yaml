@@ -11,7 +11,7 @@ services:
       pnpm --filter @growth-os/shared build || echo "Shared has no build script"
       cd apps/backend
       pnpm build
-    startCommand: cd apps/backend && node dist/index.js
+    startCommand: cd apps/backend && node dist/src/index.js
     envVars:
       - key: NODE_ENV
         value: production

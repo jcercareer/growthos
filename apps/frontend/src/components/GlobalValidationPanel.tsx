@@ -78,7 +78,6 @@ export function GlobalValidationPanel({
         toast({
           title: '✨ Auto-Fix Applied Successfully!',
           description: 'Messaging and/or script regenerated for better consistency.',
-          duration: 5000,
         });
 
         // Notify parent component to refresh data
@@ -99,7 +98,6 @@ export function GlobalValidationPanel({
         toast({
           title: 'No Auto-Fix Needed',
           description: 'Consistency is already above the threshold (75%). Content is good!',
-          duration: 3000,
         });
         setResult({
           hardChecks: fixResult.hardChecks,
@@ -112,7 +110,6 @@ export function GlobalValidationPanel({
         variant: 'destructive',
         title: 'Auto-Fix Failed',
         description: error instanceof Error ? error.message : 'See console for details.',
-        duration: 5000,
       });
     } finally {
       setIsAutoFixing(false);

@@ -116,7 +116,7 @@ export default function ViralScriptsPage() {
               <Label className="text-sm font-medium text-slate-500">Script:</Label>
               <div className="bg-slate-900 dark:bg-slate-950 p-6 rounded-lg mt-2">
                 <pre className="text-sm whitespace-pre-wrap font-mono text-slate-100 leading-relaxed">
-                  {script.script_content || script.body}
+                  {script.script}
                 </pre>
               </div>
             </div>
@@ -131,20 +131,48 @@ export default function ViralScriptsPage() {
               </div>
             )}
 
-            {/* Production Notes */}
-            {script.production_notes && (
+            {/* Visual Prompts */}
+            {script.visual_prompts && script.visual_prompts.length > 0 && (
               <div>
-                <Label className="text-sm font-medium text-slate-500">Production Notes:</Label>
-                <Alert className="mt-2">
-                  <AlertDescription className="text-sm">{script.production_notes}</AlertDescription>
-                </Alert>
+                <Label className="text-sm font-medium text-slate-500">Visual Prompts:</Label>
+                <ul className="mt-2 space-y-1">
+                  {script.visual_prompts.map((prompt, idx) => (
+                    <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start">
+                      <span className="text-purple-600 mr-2">•</span>
+                      <span>{prompt}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+
+            {/* Hashtags */}
+            {script.hashtags && script.hashtags.length > 0 && (
+              <div>
+                <Label className="text-sm font-medium text-slate-500">Hashtags:</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {script.hashtags.map((tag, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Duration */}
+            {script.duration_seconds && (
+              <Alert className="mt-2">
+                <AlertDescription className="text-sm">
+                  ⏱️ Duration: {script.duration_seconds} seconds
+                </AlertDescription>
+              </Alert>
             )}
 
             {/* Copy Button */}
             <Button
               onClick={() => {
-                navigator.clipboard.writeText(script.script_content || script.body || '');
+                navigator.clipboard.writeText(script.script);
                 alert('Script copied to clipboard!');
               }}
               variant="outline"

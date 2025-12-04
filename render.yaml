@@ -11,7 +11,22 @@ services:
       pnpm --filter @growth-os/shared build || echo "Shared has no build script"
       cd apps/backend
       pnpm build
-    startCommand: cd apps/backend && node dist/src/index.js
+      echo "=== Checking dist structure ==="
+      ls -la dist/ || echo "No dist folder"
+      find dist -name "*.js" | head -20 || echo "No JS files"
+    startCommand: |
+      cd apps/backend
+      if [ -f dist/index.js ]; then
+        node dist/index.js
+      elif [ -f dist/src/index.js ]; then
+        node dist/src/index.js
+      elif [ -f dist/apps/backend/src/index.js ]; then
+        node dist/apps/backend/src/index.js
+      else
+        echo "Cannot find compiled index.js, listing dist:"
+        find dist -name "index.js"
+        exit 1
+      fi
     envVars:
       - key: NODE_ENV
         value: production

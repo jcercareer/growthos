@@ -63,11 +63,13 @@ export default function CampaignAssetsPage() {
       }
     };
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter personas when product/audience changes
   useEffect(() => {
     filterPersonasByProductAndAudience(personas, product, audienceType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, audienceType, personas]);
 
   // Load messaging packs when persona changes
@@ -739,7 +741,7 @@ export default function CampaignAssetsPage() {
               <div className="text-center py-12 text-slate-500">
                 <p>No output generated yet.</p>
                 <p className="text-sm mt-2">
-                  Select a generator type, fill out the form, and click "Generate"
+                  Select a generator type, fill out the form, and click &quot;Generate&quot;
                 </p>
               </div>
             )}

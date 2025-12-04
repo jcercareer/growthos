@@ -45,6 +45,7 @@ export default function LeadMagnetsPage() {
       }
     };
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter personas when product/audience changes

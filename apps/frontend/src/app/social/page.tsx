@@ -377,7 +377,7 @@ function PostsTab({ toast }: { toast: any }) {
       <Card>
         <CardHeader>
           <CardTitle>Log New Post</CardTitle>
-          <CardDescription>Record a social media post you've published</CardDescription>
+          <CardDescription>Record a social media post you&apos;ve published</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

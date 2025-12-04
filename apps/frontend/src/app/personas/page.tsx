@@ -20,6 +20,11 @@ export default function PersonasPage() {
   const [error, setError] = useState<string | null>(null);
   const [persona, setPersona] = useState<Persona | null>(null);
 
+  // Helper to get default audience type for product
+  const getDefaultAudienceType = (prod: Product): AudienceType => {
+    return prod === 'Zevaux' ? 'smb_owner' : 'jobseeker';
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     setError(null);
@@ -63,10 +68,8 @@ export default function PersonasPage() {
               onValueChange={(value) => {
                 const newProduct = value as Product;
                 setProduct(newProduct);
-                // Reset audienceType to jobseeker when changing products
-                if (newProduct === 'Zevaux') {
-                  setAudienceType('jobseeker');
-                }
+                // Auto-set appropriate audience type for each product
+                setAudienceType(getDefaultAudienceType(newProduct));
               }}
             >
               <option value="CareerScaleUp">CareerScaleUp</option>
@@ -94,13 +97,24 @@ export default function PersonasPage() {
             </div>
           )}
 
+          {/* Show info for Zevaux */}
+          {product === 'Zevaux' && (
+            <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200">
+              <AlertDescription className="text-sm">
+                <strong>Zevaux AI Receptionist:</strong> Personas will be generated for small/mid-size business owners, operations managers, or agency owners who need 24/7 call handling, lead qualification, and appointment scheduling.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="seed-notes" className="text-sm font-medium text-slate-800">
               Seed Notes (Optional)
             </Label>
             <Textarea
               id="seed-notes"
-              placeholder="e.g., Focus on mid-career professionals who feel stuck..."
+              placeholder={product === 'Zevaux' 
+                ? "e.g., ai receptionist helping smbs, dentist practice losing calls after hours, HVAC contractor missing leads..." 
+                : "e.g., Focus on mid-career professionals who feel stuck..."}
               value={seedNotes}
               onChange={(e) => setSeedNotes(e.target.value)}
               rows={4}
@@ -140,7 +154,9 @@ export default function PersonasPage() {
                 <CardTitle className="text-xl font-semibold text-slate-900">{persona.name}</CardTitle>
                 <CardDescription className="text-slate-600">
                   {persona.product} • 
-                  {persona.audience_type === 'recruiter' ? ' Recruiter' : ' Job Seeker'} • 
+                  {persona.audience_type === 'recruiter' ? ' Recruiter' : 
+                   persona.audience_type === 'smb_owner' ? ' SMB Owner' :
+                   persona.audience_type === 'agency_owner' ? ' Agency Owner' : ' Job Seeker'} • 
                   {persona.age_range || (persona as any).ageRange}
                   {(persona as any).location && ` • ${(persona as any).location}`}
                 </CardDescription>

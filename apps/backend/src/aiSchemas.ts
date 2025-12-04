@@ -6,7 +6,7 @@ import { z } from 'zod';
 export const PersonaSchema = z.object({
   name: z.string().min(1).max(200),
   product: z.enum(['CareerScaleUp', 'Zevaux']),
-  audienceType: z.enum(['jobseeker', 'recruiter']),
+  audienceType: z.enum(['jobseeker', 'recruiter', 'smb_owner', 'agency_owner']),
   ageRange: z.string().min(1).max(50),
   location: z.string().min(1).max(100),
   roleOrTitle: z.string().min(1).max(200),

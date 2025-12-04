@@ -1,7 +1,7 @@
 // Shared types and utilities for Growth OS
 
 export type Product = 'CareerScaleUp' | 'Zevaux';
-export type AudienceType = 'jobseeker' | 'recruiter' | 'smb_owner' | 'other';
+export type AudienceType = 'jobseeker' | 'recruiter' | 'smb_owner' | 'agency_owner' | 'other';
 
 export interface BaseEntity {
   id: string;

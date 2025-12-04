@@ -116,7 +116,7 @@ export default function PricingPagesPage() {
           <Alert className="bg-green-50 dark:bg-green-950 border-green-200">
             <AlertDescription>
               <h3 className="font-bold text-green-900 dark:text-green-100 mb-1">{page.guarantee_section.headline || 'Our Guarantee'}</h3>
-              <p className="text-green-800 dark:text-green-200">{page.guarantee_section.body}</p>
+              <p className="text-green-800 dark:text-green-200">{page.guarantee_section.copy}</p>
             </AlertDescription>
           </Alert>
         )}

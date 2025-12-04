@@ -27,6 +27,7 @@ export default function FunnelsPage() {
   const [ctaText, setCtaText] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [funnels, setFunnels] = useState<Funnel[]>([]);
   const [selectedFunnel, setSelectedFunnel] = useState<Funnel | null>(null);
@@ -34,6 +35,7 @@ export default function FunnelsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoadingPersonas(true);
         const personasData = await listPersonas();
         setPersonas(personasData);
         if (personasData.length > 0) {
@@ -44,7 +46,10 @@ export default function FunnelsPage() {
           setFunnels(funnelsData);
         }
       } catch (err) {
-        setError('Failed to load data');
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+        console.error('Error loading data:', err);
+      } finally {
+        setLoadingPersonas(false);
       }
     };
     loadData();
@@ -281,6 +286,18 @@ export default function FunnelsPage() {
           badgeLabel="AI Powered"
         >
           <div className="space-y-4">
+            {loadingPersonas ? (
+              <Alert>
+                <AlertDescription>Loading personas...</AlertDescription>
+              </Alert>
+            ) : personas.length === 0 ? (
+              <Alert>
+                <AlertDescription>
+                  No personas found. Please create a persona first from the Personas page.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
             {/* Persona Selection */}
             <div className="space-y-2">
               <Label htmlFor="persona" className="text-sm font-medium">
@@ -367,10 +384,13 @@ export default function FunnelsPage() {
             {/* Image URLs */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Hero/Feature Images (optional)</Label>
+              <p className="text-xs text-slate-500 mb-2">
+                📌 Paste image URLs from your hosting (e.g., Imgur, Cloudinary, or your CDN). The funnel will reference these images. File upload coming soon!
+              </p>
               {imageUrls.map((url, idx) => (
                 <div key={idx} className="flex gap-2">
                   <Input
-                    placeholder="https://example.com/image.jpg"
+                    placeholder="https://i.imgur.com/yourimage.jpg"
                     value={url}
                     onChange={(e) => updateImageUrl(idx, e.target.value)}
                   />
@@ -385,7 +405,7 @@ export default function FunnelsPage() {
                 </div>
               ))}
               <Button type="button" variant="outline" size="sm" onClick={addImageUrl}>
-                + Add Image
+                + Add Image URL
               </Button>
             </div>
 
@@ -439,12 +459,14 @@ export default function FunnelsPage() {
             {/* Generate Button */}
             <Button
               onClick={handleGenerate}
-              disabled={loading || !selectedPersonaId}
+              disabled={loading || !selectedPersonaId || loadingPersonas}
               className="w-full shadow-md"
               size="lg"
             >
               {loading ? 'Generating Funnel...' : '✨ Generate Funnel'}
             </Button>
+              </>
+            )}
           </div>
         </PageCard>
 

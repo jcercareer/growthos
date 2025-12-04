@@ -55,16 +55,26 @@ export default function NichesPage() {
   const [customNotes, setCustomNotes] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [loadingPersonas, setLoadingPersonas] = useState(true);
+  const [loadingMessaging, setLoadingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState<NicheVariantResponse | null>(null);
 
   // Load personas on mount
   useEffect(() => {
     const loadPersonas = async () => {
-      const data = await listPersonas(product);
-      setPersonas(data);
-      if (data.length > 0) {
-        setSelectedPersonaId(data[0].id);
+      try {
+        setLoadingPersonas(true);
+        const data = await listPersonas(product);
+        setPersonas(data);
+        if (data.length > 0) {
+          setSelectedPersonaId(data[0].id);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load personas');
+        console.error('Error loading personas:', err);
+      } finally {
+        setLoadingPersonas(false);
       }
     };
     loadPersonas();
@@ -74,10 +84,18 @@ export default function NichesPage() {
   useEffect(() => {
     if (selectedPersonaId) {
       const loadMessaging = async () => {
-        const data = await listMessagingForPersona(selectedPersonaId);
-        setMessagingPacks(data);
-        if (data.length > 0) {
-          setSelectedMessagingId(data[0].id);
+        setLoadingMessaging(true);
+        try {
+          const data = await listMessagingForPersona(selectedPersonaId);
+          setMessagingPacks(data);
+          if (data.length > 0) {
+            setSelectedMessagingId(data[0].id);
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load messaging');
+          console.error('Error loading messaging:', err);
+        } finally {
+          setLoadingMessaging(false);
         }
       };
       loadMessaging();
@@ -342,6 +360,18 @@ export default function NichesPage() {
           badgeLabel="AI Powered"
         >
           <div className="space-y-4">
+            {loadingPersonas ? (
+              <Alert>
+                <AlertDescription>Loading personas...</AlertDescription>
+              </Alert>
+            ) : personas.length === 0 ? (
+              <Alert>
+                <AlertDescription>
+                  No personas found for {product}. Please create a persona first from the Personas page.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
             {/* Product Selection */}
             <div className="space-y-2">
               <Label htmlFor="product" className="text-sm font-medium">Product</Label>
@@ -374,32 +404,28 @@ export default function NichesPage() {
             {/* Persona Selection */}
             <div className="space-y-2">
               <Label htmlFor="persona" className="text-sm font-medium">Base Persona</Label>
-              {personas.length === 0 ? (
-                <Alert>
-                  <AlertDescription>
-                    No personas found for {product}. Create one first.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <select
-                  id="persona"
-                  value={selectedPersonaId}
-                  onChange={(e) => setSelectedPersonaId(e.target.value)}
-                  className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800"
-                >
-                  {personas.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              )}
+              <select
+                id="persona"
+                value={selectedPersonaId}
+                onChange={(e) => setSelectedPersonaId(e.target.value)}
+                className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800"
+              >
+                {personas.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
 
             {/* Messaging Pack Selection */}
             {selectedPersonaId && (
               <div className="space-y-2">
                 <Label htmlFor="messaging" className="text-sm font-medium">Base Messaging Pack</Label>
-                {messagingPacks.length === 0 ? (
-                  <p className="text-xs text-slate-500">No messaging packs for this persona</p>
+                {loadingMessaging ? (
+                  <p className="text-sm text-slate-600">Loading messaging packs...</p>
+                ) : messagingPacks.length === 0 ? (
+                  <Alert>
+                    <AlertDescription>No messaging packs for this persona. Generate messaging first.</AlertDescription>
+                  </Alert>
                 ) : (
                   <select
                     id="messaging"
@@ -437,12 +463,14 @@ export default function NichesPage() {
             {/* Generate Button */}
             <Button
               onClick={handleGenerate}
-              disabled={loading || !selectedPersonaId || !selectedMessagingId}
+              disabled={loading || !selectedPersonaId || !selectedMessagingId || loadingPersonas || loadingMessaging}
               className="w-full shadow-md"
               size="lg"
             >
               {loading ? 'Generating Niche Variant Pack...' : '✨ Generate Niche Variant Pack'}
             </Button>
+              </>
+            )}
           </div>
         </PageCard>
 

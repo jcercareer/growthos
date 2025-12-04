@@ -44,6 +44,8 @@ export default function CampaignAssetsPage() {
   // UI state
   const [activeGenerator, setActiveGenerator] = useState<GeneratorType>('ads');
   const [loading, setLoading] = useState(false);
+  const [loadingPersonas, setLoadingPersonas] = useState(true);
+  const [loadingMessaging, setLoadingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Output state
@@ -55,11 +57,15 @@ export default function CampaignAssetsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoadingPersonas(true);
         const personasData = await listPersonas();
         setPersonas(personasData);
         filterPersonasByProductAndAudience(personasData, product, audienceType);
       } catch (err) {
-        setError('Failed to load personas');
+        setError(err instanceof Error ? err.message : 'Failed to load personas');
+        console.error('Error loading personas:', err);
+      } finally {
+        setLoadingPersonas(false);
       }
     };
     loadData();
@@ -95,6 +101,7 @@ export default function CampaignAssetsPage() {
   };
 
   const loadMessagingPacks = async (personaId: string) => {
+    setLoadingMessaging(true);
     try {
       const messaging = await listMessagingForPersona(personaId);
       setMessagingPacks(messaging);
@@ -102,7 +109,10 @@ export default function CampaignAssetsPage() {
         setSelectedMessagingId(messaging[0].id);
       }
     } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load messaging');
       console.error('Failed to load messaging packs:', err);
+    } finally {
+      setLoadingMessaging(false);
     }
   };
 
@@ -654,7 +664,11 @@ export default function CampaignAssetsPage() {
             {/* Persona Selection */}
             <div className="space-y-2">
               <Label htmlFor="persona" className="text-sm font-medium">Persona</Label>
-              {filteredPersonas.length === 0 ? (
+              {loadingPersonas ? (
+                <Alert>
+                  <AlertDescription>Loading personas...</AlertDescription>
+                </Alert>
+              ) : filteredPersonas.length === 0 ? (
                 <Alert>
                   <AlertDescription>
                     No personas found for {product} - {audienceType}. Create one first.
@@ -678,8 +692,12 @@ export default function CampaignAssetsPage() {
             {selectedPersonaId && (
               <div className="space-y-2">
                 <Label htmlFor="messaging" className="text-sm font-medium">Messaging Pack</Label>
-                {messagingPacks.length === 0 ? (
-                  <p className="text-xs text-slate-500">No messaging packs for this persona</p>
+                {loadingMessaging ? (
+                  <p className="text-sm text-slate-600">Loading messaging packs...</p>
+                ) : messagingPacks.length === 0 ? (
+                  <Alert>
+                    <AlertDescription>No messaging packs for this persona. Generate messaging first.</AlertDescription>
+                  </Alert>
                 ) : (
                   <select
                     id="messaging"
@@ -717,7 +735,7 @@ export default function CampaignAssetsPage() {
             {/* Generate Button */}
             <Button
               onClick={handleGenerate}
-              disabled={loading || !selectedPersonaId || !selectedMessagingId}
+              disabled={loading || !selectedPersonaId || !selectedMessagingId || loadingPersonas || loadingMessaging}
               className="w-full shadow-md"
               size="lg"
             >

@@ -31,7 +31,7 @@ export const openai = getOpenAIClient();
 export async function generateJSON<T>(
   systemPrompt: string,
   userPrompt: string,
-  jsonSchema?: object
+  jsonSchema?: Record<string, unknown>
 ): Promise<T> {
   try {
     const openai = getOpenAIClient();

@@ -1,7 +1,6 @@
 {
+  "buildCommand": "pnpm build",
   "installCommand": "pnpm install",
-  "buildCommand": "cd ../.. && pnpm install && pnpm --filter @growth-os/frontend build",
-  "devCommand": "cd ../.. && pnpm --filter @growth-os/frontend dev",
   "framework": "nextjs"
 }
 

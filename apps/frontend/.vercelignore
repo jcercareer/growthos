@@ -1,0 +1,8 @@
+# Vercel should ONLY build frontend
+apps/backend
+packages
+supabase
+document
+*.md
+render.yaml
+

@@ -1,14 +1,14 @@
 services:
-  # Backend API Service
+  # Backend API Service ONLY
   - type: web
     name: growthos-backend
     env: node
     region: oregon
     plan: free
     buildCommand: |
-      cd apps/backend
       npm install -g pnpm
-      pnpm install
+      pnpm install --filter @growth-os/backend
+      cd apps/backend
       pnpm build
     startCommand: cd apps/backend && node dist/index.js
     envVars:
@@ -23,6 +23,8 @@ services:
       - key: SUPABASE_SERVICE_KEY
         sync: false
       - key: CORS_ORIGIN
+        sync: false
+      - key: ADMIN_ACCESS_KEY
         sync: false
     healthCheckPath: /health
 

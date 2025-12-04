@@ -1,6 +1,0 @@
-{
-  "buildCommand": "pnpm install && cd apps/frontend && pnpm build",
-  "installCommand": "pnpm install",
-  "framework": "nextjs"
-}
-

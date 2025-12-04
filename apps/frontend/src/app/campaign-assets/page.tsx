@@ -344,7 +344,7 @@ export default function CampaignAssetsPage() {
           <CardContent className="grid md:grid-cols-2 gap-4">
             {output.testimonialCards.map((testimonial, idx) => (
               <div key={idx} className="border rounded-lg p-4 bg-slate-50 dark:bg-slate-900">
-                <p className="text-sm italic mb-3">"{testimonial.quote}"</p>
+                <p className="text-sm italic mb-3">&quot;{testimonial.quote}&quot;</p>
                 <div className="flex items-center justify-between text-xs">
                   <div>
                     <p className="font-semibold">{testimonial.displayName}</p>
@@ -382,7 +382,7 @@ export default function CampaignAssetsPage() {
                     <p className="text-slate-600 dark:text-slate-400">{study.outcome}</p>
                   </div>
                   <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded italic">
-                    "{study.pullQuote}"
+                    &quot;{study.pullQuote}&quot;
                   </div>
                 </div>
               </div>

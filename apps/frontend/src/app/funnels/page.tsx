@@ -92,6 +92,10 @@ export default function FunnelsPage() {
         funnelType,
         tone,
         customNotes: customNotes || undefined,
+        videoUrl: videoUrl || undefined,
+        imageUrls: imageUrls.filter(url => url.trim() !== ''),
+        ctaText: ctaText || undefined,
+        ctaUrl: ctaUrl || undefined,
       });
       setFunnels([result, ...funnels]);
       setSelectedFunnel(result);

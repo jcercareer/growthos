@@ -176,6 +176,10 @@ export function buildFunnelUserPrompt(params: {
   messagingHeadline?: string;
   messagingHook?: string;
   customNotes?: string;
+  videoUrl?: string;
+  imageUrls?: string[];
+  ctaText?: string;
+  ctaUrl?: string;
 }) {
   const {
     product,
@@ -188,6 +192,10 @@ export function buildFunnelUserPrompt(params: {
     messagingHeadline,
     messagingHook,
     customNotes,
+    videoUrl,
+    imageUrls,
+    ctaText,
+    ctaUrl,
   } = params;
 
   return `
@@ -205,8 +213,13 @@ FUNNEL TYPE: ${funnelType}
 
 ${customNotes ? `CUSTOM NOTES: ${customNotes}` : ''}
 
+${videoUrl ? `VIDEO URL TO EMBED: ${videoUrl}` : ''}
+${imageUrls && imageUrls.length > 0 ? `HERO/FEATURE IMAGES: ${imageUrls.join(', ')}` : ''}
+${ctaText ? `CUSTOM CTA TEXT: ${ctaText}` : ''}
+${ctaUrl ? `CUSTOM CTA URL: ${ctaUrl}` : ''}
+
 Generate a complete funnel with:
-- Hero section with scroll-stopping hook + subhook + CTA
+- Hero section with scroll-stopping hook + subhook + CTA${videoUrl ? ' (include video embed reference)' : ''}
 - Social proof section (3+ testimonials, metrics)
 - Feature blocks (3-8 features, explicitly reference real product features)
 - Value stack (3-10 benefits)
@@ -227,8 +240,12 @@ export async function generateFunnelForPersona(params: {
   funnelType: FunnelType;
   tone: ToneType;
   customNotes?: string;
+  videoUrl?: string;
+  imageUrls?: string[];
+  ctaText?: string;
+  ctaUrl?: string;
 }): Promise<Funnel> {
-  const { personaId, messagingId, funnelType, tone, customNotes } = params;
+  const { personaId, messagingId, funnelType, tone, customNotes, videoUrl, imageUrls, ctaText, ctaUrl } = params;
 
   // Look up persona
   const persona = await getPersonaById(personaId);
@@ -259,6 +276,10 @@ export async function generateFunnelForPersona(params: {
     messagingHeadline: messaging?.headline,
     messagingHook: messaging?.emotional_hook,
     customNotes,
+    videoUrl,
+    imageUrls,
+    ctaText,
+    ctaUrl,
   });
 
   const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(

@@ -8,6 +8,10 @@ const GenerateFunnelInputSchema = z.object({
   funnelType: z.enum(['landing_page', 'vsl', 'webinar', 'squeeze_page', 'sales_page']),
   tone: z.enum(['professional', 'bold', 'friendly', 'urgent']),
   customNotes: z.string().optional(),
+  videoUrl: z.string().optional(),
+  imageUrls: z.array(z.string()).optional(),
+  ctaText: z.string().optional(),
+  ctaUrl: z.string().optional(),
 });
 
 export async function generateFunnelHandler(req: Request, res: Response) {
@@ -20,6 +24,10 @@ export async function generateFunnelHandler(req: Request, res: Response) {
       funnelType: input.funnelType,
       tone: input.tone,
       customNotes: input.customNotes,
+      videoUrl: input.videoUrl,
+      imageUrls: input.imageUrls,
+      ctaText: input.ctaText,
+      ctaUrl: input.ctaUrl,
     });
 
     res.status(201).json({

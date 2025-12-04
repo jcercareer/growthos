@@ -354,6 +354,10 @@ export async function generateFunnel(input: {
   funnelType: FunnelType;
   tone: ToneType;
   customNotes?: string;
+  videoUrl?: string;
+  imageUrls?: string[];
+  ctaText?: string;
+  ctaUrl?: string;
 }): Promise<Funnel> {
   return fetchApi<Funnel>('/api/generate/funnel', {
     method: 'POST',

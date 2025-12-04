@@ -263,6 +263,16 @@ export async function listAllBlogOutlines(): Promise<BlogOutline[]> {
   return fetchApi<BlogOutline[]>('/api/blog-outlines');
 }
 
+// Helper to get all personas (for validation)
+export async function listAllPersonas(): Promise<Persona[]> {
+  return fetchApi<Persona[]>('/api/personas');
+}
+
+// Helper to get all messaging (for validation)
+export async function listAllMessaging(): Promise<Messaging[]> {
+  return fetchApi<Messaging[]>('/api/messaging');
+}
+
 // ============================================================
 // VALIDATION ENDPOINTS
 // ============================================================

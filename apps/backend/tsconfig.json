@@ -1,18 +1,11 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
     "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "baseUrl": "../../",
+    "rootDir": "./src",
+    "baseUrl": "./",
     "paths": {
-      "@growth-os/shared": ["packages/shared/src/index.ts"]
+      "@growth-os/shared": ["../../packages/shared/src"]
     }
   },
   "include": ["src/**/*"],

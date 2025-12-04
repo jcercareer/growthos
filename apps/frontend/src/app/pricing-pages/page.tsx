@@ -57,8 +57,6 @@ export default function PricingPagesPage() {
   };
 
   const renderPricingContent = (page: PricingPagePack) => {
-    const content = page.content as any;
-    
     return (
       <div className="space-y-6">
         {/* Header */}
@@ -70,12 +68,12 @@ export default function PricingPagesPage() {
         </Card>
 
         {/* Pricing Tiers */}
-        {content.tiers && content.tiers.length > 0 && (
+        {page.tiers && page.tiers.length > 0 && (
           <div className="grid md:grid-cols-3 gap-4">
-            {content.tiers.map((tier: any, idx: number) => (
-              <Card key={idx} className={`shadow-md ${tier.featured ? 'border-2 border-blue-500' : ''}`}>
+            {page.tiers.map((tier, idx) => (
+              <Card key={idx} className={`shadow-md ${tier.highlighted ? 'border-2 border-blue-500' : ''}`}>
                 <CardHeader>
-                  {tier.featured && <Badge className="w-fit mb-2">Most Popular</Badge>}
+                  {tier.highlighted && <Badge className="w-fit mb-2">Most Popular</Badge>}
                   <CardTitle className="text-lg">{tier.name}</CardTitle>
                   <div className="text-3xl font-bold text-blue-600">{tier.price}</div>
                   <CardDescription>{tier.billing_period}</CardDescription>
@@ -89,7 +87,7 @@ export default function PricingPagesPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full mt-4">Choose {tier.name}</Button>
+                  <Button className="w-full mt-4">{tier.cta_text || `Choose ${tier.name}`}</Button>
                 </CardContent>
               </Card>
             ))}
@@ -97,13 +95,13 @@ export default function PricingPagesPage() {
         )}
 
         {/* FAQ */}
-        {content.faq && content.faq.length > 0 && (
+        {page.faq && page.faq.length > 0 && (
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Frequently Asked Questions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {content.faq.map((item: any, idx: number) => (
+              {page.faq.map((item, idx) => (
                 <div key={idx} className="border-l-4 border-blue-500 pl-4">
                   <h4 className="font-semibold text-slate-900 dark:text-white">{item.question}</h4>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{item.answer}</p>
@@ -114,11 +112,11 @@ export default function PricingPagesPage() {
         )}
 
         {/* Guarantee */}
-        {content.guarantee && (
+        {page.guarantee_section && (
           <Alert className="bg-green-50 dark:bg-green-950 border-green-200">
             <AlertDescription>
-              <h3 className="font-bold text-green-900 dark:text-green-100 mb-1">Our Guarantee</h3>
-              <p className="text-green-800 dark:text-green-200">{content.guarantee}</p>
+              <h3 className="font-bold text-green-900 dark:text-green-100 mb-1">{page.guarantee_section.headline || 'Our Guarantee'}</h3>
+              <p className="text-green-800 dark:text-green-200">{page.guarantee_section.body}</p>
             </AlertDescription>
           </Alert>
         )}

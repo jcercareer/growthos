@@ -74,6 +74,7 @@ function AccountsTab({ toast }: { toast: any }) {
 
   useEffect(() => {
     loadAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadAccounts() {
@@ -287,6 +288,7 @@ function PostsTab({ toast }: { toast: any }) {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadData() {
@@ -735,6 +737,7 @@ function MetricsDashboardTab({ toast }: { toast: any }) {
 
   useEffect(() => {
     loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadDashboardData() {

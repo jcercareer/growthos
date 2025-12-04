@@ -458,7 +458,7 @@ export default function NichesPage() {
               <div className="text-center py-12 text-slate-500">
                 <p>No variant generated yet.</p>
                 <p className="text-sm mt-2">
-                  Select a niche, base persona, and messaging pack, then click "Generate"
+                  Select a niche, base persona, and messaging pack, then click &quot;Generate&quot;
                 </p>
               </div>
             )}

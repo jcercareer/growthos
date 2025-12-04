@@ -50,6 +50,7 @@ export default function LeadMagnetsPage() {
   // Filter personas when product/audience changes
   useEffect(() => {
     filterPersonasByProductAndAudience(personas, product, audienceType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, audienceType, personas]);
 
   // Load messaging packs when persona changes
@@ -57,6 +58,7 @@ export default function LeadMagnetsPage() {
     if (selectedPersonaId) {
       loadMessagingPacks(selectedPersonaId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPersonaId]);
 
   const filterPersonasByProductAndAudience = (

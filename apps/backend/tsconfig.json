@@ -2,10 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "./",
+    "baseUrl": "../../",
     "paths": {
-      "@growth-os/shared": ["../../packages/shared/src"]
+      "@growth-os/shared": ["packages/shared/src"]
     }
   },
   "include": ["src/**/*"],

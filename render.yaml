@@ -8,13 +8,13 @@ services:
     buildCommand: |
       npm install -g pnpm
       pnpm install
-      pnpm --filter @growth-os/shared build || echo "Shared has no build script"
       cd apps/backend
       pnpm build
-      echo "=== Checking dist structure ==="
-      ls -la dist/ || echo "No dist folder"
-      find dist -name "*.js" | head -20 || echo "No JS files"
-      echo "=== End of dist check ==="
+      echo "=== TypeScript Output Structure ==="
+      pwd
+      ls -la dist/ 2>/dev/null || echo "No dist in backend"
+      find dist -type f -name "*.js" 2>/dev/null | head -20 || echo "No JS files in dist"
+      echo "=== End Check ==="
     startCommand: |
       cd apps/backend
       echo "Looking for index.js..."

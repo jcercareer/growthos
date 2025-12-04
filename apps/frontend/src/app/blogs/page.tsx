@@ -237,10 +237,10 @@ export default function BlogsPage() {
               {blogOutline.outline.sections?.map((section, i) => (
                 <div key={i} className="border-l-2 border-indigo-500 pl-4 py-1">
                   <h4 className="font-medium text-slate-900 mb-2">
-                    {i + 1}. {section.heading}
+                    {i + 1}. {section.title}
                   </h4>
                   <ul className="space-y-1.5">
-                    {section.bullets.map((bullet, j) => (
+                    {section.points.map((bullet, j) => (
                       <li key={j} className="text-sm text-slate-600 flex gap-2">
                         <span className="text-slate-400">→</span>
                         <span>{bullet}</span>

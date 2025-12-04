@@ -176,13 +176,16 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
     // Validate AI output with Zod
     const validatedOutput = BlogOutlineSchema.parse(aiOutput);
 
-    // Save to database
+    // Save to database (map AI output to DB schema)
     const savedOutline = await createBlogOutline({
       persona_id: personaId,
       messaging_id: messagingId,
       title: validatedOutput.title,
       outline: {
-        sections: validatedOutput.sections,
+        sections: validatedOutput.sections.map(section => ({
+          title: section.heading,
+          points: section.bullets,
+        })),
         seo_keywords: validatedOutput.seo_keywords,
         meta_description: validatedOutput.meta_description,
       },

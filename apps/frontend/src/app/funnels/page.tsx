@@ -193,7 +193,7 @@ export default function FunnelsPage() {
                 <div className="space-y-3">
                   {content.social_proof.testimonials.slice(0, 3).map((testimonial: string, idx: number) => (
                     <p key={idx} className="italic text-slate-600 dark:text-slate-400 border-l-4 border-blue-500 pl-4">
-                      "{testimonial}"
+                      &quot;{testimonial}&quot;
                     </p>
                   ))}
                 </div>
@@ -486,7 +486,7 @@ export default function FunnelsPage() {
             ) : (
               <div className="text-center py-12 text-slate-500">
                 <p>No funnel generated yet.</p>
-                <p className="text-sm mt-2">Fill out the form and click "Generate Funnel"</p>
+                <p className="text-sm mt-2">Fill out the form and click &quot;Generate Funnel&quot;</p>
               </div>
             )}
           </PageCard>

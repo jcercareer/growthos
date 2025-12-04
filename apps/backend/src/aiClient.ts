@@ -21,6 +21,9 @@ function getOpenAIClient(): OpenAI {
   return openaiInstance;
 }
 
+// Export the client getter for direct use (e.g., in validators)
+export const openai = getOpenAIClient();
+
 /**
  * Call OpenAI with strict JSON output mode
  * Uses JSON schema mode when available for guaranteed valid JSON

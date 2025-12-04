@@ -464,7 +464,7 @@ export default function LeadMagnetsPage() {
             ) : (
               <div className="text-center py-12 text-slate-500">
                 <p>No lead magnet generated yet.</p>
-                <p className="text-sm mt-2">Fill out the form and click "Generate Lead Magnet Pack"</p>
+                <p className="text-sm mt-2">Fill out the form and click &quot;Generate Lead Magnet Pack&quot;</p>
               </div>
             )}
           </PageCard>

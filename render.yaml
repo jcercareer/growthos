@@ -14,17 +14,25 @@ services:
       echo "=== Checking dist structure ==="
       ls -la dist/ || echo "No dist folder"
       find dist -name "*.js" | head -20 || echo "No JS files"
+      echo "=== End of dist check ==="
     startCommand: |
       cd apps/backend
+      echo "Looking for index.js..."
       if [ -f dist/index.js ]; then
-        node dist/index.js
+        echo "Found at dist/index.js"
+        exec node dist/index.js
       elif [ -f dist/src/index.js ]; then
-        node dist/src/index.js
+        echo "Found at dist/src/index.js"
+        exec node dist/src/index.js
       elif [ -f dist/apps/backend/src/index.js ]; then
-        node dist/apps/backend/src/index.js
+        echo "Found at dist/apps/backend/src/index.js"
+        exec node dist/apps/backend/src/index.js
       else
-        echo "Cannot find compiled index.js, listing dist:"
-        find dist -name "index.js"
+        echo "ERROR: Cannot find compiled index.js"
+        echo "Contents of dist:"
+        ls -R dist 2>/dev/null || echo "dist folder doesn't exist"
+        echo "Searching for index.js:"
+        find . -name "index.js" 2>/dev/null || echo "No index.js found"
         exit 1
       fi
     envVars:

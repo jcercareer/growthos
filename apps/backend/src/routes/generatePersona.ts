@@ -4,6 +4,7 @@ import { generateJSON } from '../aiClient';
 import { PersonaSchema, PersonaAIOutput } from '../aiSchemas';
 import { createPersona } from '../repositories';
 import type { Product } from '@growth-os/shared';
+import { buildPrompt } from '../prompts/applySystemPrompt';
 
 // Input validation schema
 const GeneratePersonaInputSchema = z.object({
@@ -161,18 +162,20 @@ export async function generatePersonaHandler(req: Request, res: Response) {
       });
     }
 
-    // Build prompts using new prompt system
-    const systemPrompt = personaSystemPrompt;
-    const userPrompt = buildPersonaUserPrompt({
-      product,
-      audienceType: finalAudienceType,
-      seedNotes: seed_notes,
-    });
+    // Build prompts using new prompt system with global context
+    const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+      personaSystemPrompt,
+      buildPersonaUserPrompt({
+        product,
+        audienceType: finalAudienceType,
+        seedNotes: seed_notes,
+      })
+    );
 
     // Generate with OpenAI
     const aiOutput = await generateJSON<PersonaAIOutput>(
-      systemPrompt,
-      userPrompt
+      combinedSystemPrompt,
+      finalUserPrompt
     );
 
     // Validate AI output with Zod

@@ -6,6 +6,7 @@ import {
   messagingSystemPrompt,
   buildMessagingUserPrompt,
 } from '../../routes/generateMessaging';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { Messaging } from '@growth-os/shared';
 
 /**
@@ -21,18 +22,20 @@ export async function generateMessagingForPersona(
     throw new Error('Persona not found');
   }
 
-  // Build prompts
-  const systemPrompt = messagingSystemPrompt;
-  const userPrompt = buildMessagingUserPrompt({
-    product: persona.product as 'CareerScaleUp' | 'Zevaux',
-    audienceType: persona.audience_type || 'jobseeker',
-    personaDescription: persona.description,
-    personaPainPoints: persona.pain_points,
-    personaGoals: persona.goals,
-  });
+  // Build prompts with global context
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    messagingSystemPrompt,
+    buildMessagingUserPrompt({
+      product: persona.product as 'CareerScaleUp' | 'Zevaux',
+      audienceType: persona.audience_type || 'jobseeker',
+      personaDescription: persona.description,
+      personaPainPoints: persona.pain_points,
+      personaGoals: persona.goals,
+    })
+  );
 
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = MessagingSchema.parse(aiOutput);

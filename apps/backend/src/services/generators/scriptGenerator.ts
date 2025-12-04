@@ -7,6 +7,7 @@ import {
   scriptSystemPrompt,
   buildScriptUserPrompt,
 } from '../../routes/generateScript';
+import { buildPrompt } from '../../prompts/applySystemPrompt';
 import type { Script } from '@growth-os/shared';
 
 /**
@@ -32,19 +33,21 @@ export async function generateScriptForPersonaAndMessaging(
     throw new Error('Messaging not found');
   }
 
-  // Build prompts
-  const systemPrompt = scriptSystemPrompt;
-  const userPrompt = buildScriptUserPrompt({
-    product: persona.product as 'CareerScaleUp' | 'Zevaux',
-    audienceType: persona.audience_type || 'jobseeker',
-    personaName: persona.name,
-    personaDescription: persona.description,
-    messagingHeadline: messaging.headline,
-    messagingElevatorPitch: messaging.elevator_pitch,
-  });
+  // Build prompts with global context
+  const { systemPrompt: combinedSystemPrompt, userPrompt: finalUserPrompt } = buildPrompt(
+    scriptSystemPrompt,
+    buildScriptUserPrompt({
+      product: persona.product as 'CareerScaleUp' | 'Zevaux',
+      audienceType: persona.audience_type || 'jobseeker',
+      personaName: persona.name,
+      personaDescription: persona.description,
+      messagingHeadline: messaging.headline,
+      messagingElevatorPitch: messaging.elevator_pitch,
+    })
+  );
 
   // Generate with OpenAI
-  const aiOutput = await generateJSON<any>(systemPrompt, userPrompt);
+  const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
   // Validate AI output with Zod
   const validatedOutput = ScriptSchema.parse(aiOutput);

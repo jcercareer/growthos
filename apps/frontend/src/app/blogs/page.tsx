@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AppShell } from '@/components/AppShell';
 import { PageCard } from '@/components/PageCard';
+import { OutputToolbar } from '@/components/OutputToolbar';
 
 export default function BlogsPage() {
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -200,20 +201,29 @@ export default function BlogsPage() {
       {blogGrowth && (
         <Card className="border-0 shadow-xl rounded-3xl">
           <CardHeader className="border-b border-slate-200/60 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="flex items-start gap-3 justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-semibold text-slate-900">
+                    {blogGrowth.blocks.find((b) => b.type === 'hero')?.title || 'Blog Outline'}
+                  </CardTitle>
+                  <CardDescription className="text-slate-600">
+                    {blogGrowth.blocks.find((b) => b.type === 'hero')?.subtitle || blogGrowth.rawTextSummary}
+                  </CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl font-semibold text-slate-900">
-                  {blogGrowth.blocks.find((b) => b.type === 'hero')?.title || 'Blog Outline'}
-                </CardTitle>
-                <CardDescription className="text-slate-600">
-                  {blogGrowth.blocks.find((b) => b.type === 'hero')?.subtitle || blogGrowth.rawTextSummary}
-                </CardDescription>
-              </div>
+              <OutputToolbar
+                onCopy={() => {
+                  const copyText = JSON.stringify(blogGrowth, null, 2);
+                  void navigator.clipboard.writeText(copyText);
+                }}
+                onRegenerate={handleGenerate}
+              />
             </div>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">

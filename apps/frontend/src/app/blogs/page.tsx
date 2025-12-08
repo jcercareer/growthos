@@ -21,6 +21,7 @@ export default function BlogsPage() {
   const [loadingMessaging, setLoadingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [blogGrowth, setBlogGrowth] = useState<GrowthOSResult | null>(null);
+  const selectedMsg = messaging.find((m) => m.id === selectedMessagingId);
 
   // Load personas on mount
   useEffect(() => {

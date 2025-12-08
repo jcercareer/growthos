@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AppShell } from '@/components/AppShell';
 import { PageCard } from '@/components/PageCard';
+import { OutputToolbar } from '@/components/OutputToolbar';
 
 export default function SocialProofPage() {
   const [product, setProduct] = useState<Product>('CareerScaleUp');
@@ -213,6 +214,17 @@ export default function SocialProofPage() {
             title="Generated Social Proof"
             subtitle="Testimonials, case studies & metrics"
           >
+            {selectedPack && (
+              <div className="flex justify-end pb-3">
+                <OutputToolbar
+                  onCopy={() => {
+                    const copyText = JSON.stringify(selectedPack, null, 2);
+                    void navigator.clipboard.writeText(copyText);
+                  }}
+                  onRegenerate={handleGenerate}
+                />
+              </div>
+            )}
             {loadingPacks ? (
               <Alert>
                 <AlertDescription>Loading social proof packs...</AlertDescription>

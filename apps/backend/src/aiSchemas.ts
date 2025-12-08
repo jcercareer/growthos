@@ -260,7 +260,7 @@ export const SocialProofPackSchema = z.object({
     author_title: z.string().min(2).max(200).optional(),
     author_avatar: z.string().url().optional(),
     rating: z.number().int().min(1).max(5).optional(),
-  })).min(3).max(15),
+  })).min(1).max(15),
   case_studies: z.array(z.object({
     title: z.string().min(10).max(200),
     summary: z.string().min(50).max(1000),
@@ -269,7 +269,7 @@ export const SocialProofPackSchema = z.object({
   metrics: z.array(z.object({
     value: z.string().min(1).max(50),
     label: z.string().min(3).max(100),
-  })).min(3).max(10).optional(),
+  })).min(1).max(10).optional(),
   reviews: z.array(z.object({
     source: z.string().min(3).max(100),
     rating: z.number().min(1).max(5),

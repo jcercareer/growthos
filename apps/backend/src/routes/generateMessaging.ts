@@ -85,9 +85,9 @@ JSON fields to output (exact):
 
 {
   "headline": string,
-  "emotionalHook": string,
-  "elevatorPitch": string,
-  "viralTaglines": string[]
+  "emotional_hook": string,
+  "elevator_pitch": string,
+  "viral_taglines": string[]
 }
 
 Content requirements:

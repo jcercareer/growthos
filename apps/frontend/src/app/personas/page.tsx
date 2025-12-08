@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AppShell } from '@/components/AppShell';
-import { PageCard } from '@/components/PageCard';
+import { Card } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LayoutShell } from '@/components/LayoutShell';
+import { Users, Sparkles } from 'lucide-react';
 
 export default function PersonasPage() {
   const [product, setProduct] = useState<Product>('CareerScaleUp');
@@ -43,196 +43,186 @@ export default function PersonasPage() {
   };
 
   return (
-    <AppShell
-      title="Personas"
-      subtitle="Generate AI-powered customer personas for CareerScaleUp, Zevaux, and JCER-level campaigns."
-    >
-      <PageCard
-        title="Generate New Persona"
-        subtitle="AI will create a detailed customer persona based on the selected product and audience type."
-        badgeLabel="Persona Engine"
-        iconSlot={
-          <div className="hidden md:flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-brand-alt text-white shadow-lg shadow-brand-soft/30">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+    <LayoutShell>
+      {/* Page Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+            <Users className="h-5 w-5" />
           </div>
-        }
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="product" className="text-sm font-medium text-slate-800">Product</Label>
-            <Select
-              id="product"
-              value={product}
-              onValueChange={(value) => {
-                const newProduct = value as Product;
-                setProduct(newProduct);
-                // Auto-set appropriate audience type for each product
-                setAudienceType(getDefaultAudienceType(newProduct));
-              }}
-            >
-              <option value="CareerScaleUp">CareerScaleUp</option>
-              <option value="Zevaux">Zevaux</option>
-            </Select>
+          <div>
+            <h1 className="text-3xl font-bold">Personas</h1>
+            <p className="text-sm text-muted-foreground">Generate detailed customer personas for your products</p>
           </div>
-
-          {/* Show Audience Type selector only for CareerScaleUp */}
-          {product === 'CareerScaleUp' && (
-            <div className="space-y-2">
-              <Label htmlFor="audience-type" className="text-sm font-medium text-slate-800">Audience Type</Label>
-              <Select
-                id="audience-type"
-                value={audienceType}
-                onValueChange={(value) => setAudienceType(value as AudienceType)}
-              >
-                <option value="jobseeker">Job Seeker</option>
-                <option value="recruiter">Recruiter / Hiring Team</option>
-              </Select>
-              <p className="text-xs text-slate-500">
-                {audienceType === 'jobseeker'
-                  ? 'Persona represents someone looking for a job or advancing their career'
-                  : 'Persona represents a recruiter, hiring manager, or HR professional'}
-              </p>
-            </div>
-          )}
-
-          {/* Show info for Zevaux */}
-          {product === 'Zevaux' && (
-            <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200">
-              <AlertDescription className="text-sm">
-                <strong>Zevaux AI Receptionist:</strong> Personas will be generated for small/mid-size business owners, operations managers, or agency owners who need 24/7 call handling, lead qualification, and appointment scheduling.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="seed-notes" className="text-sm font-medium text-slate-800">
-              Seed Notes (Optional)
-            </Label>
-            <Textarea
-              id="seed-notes"
-              placeholder={product === 'Zevaux' 
-                ? "e.g., ai receptionist helping smbs, dentist practice losing calls after hours, HVAC contractor missing leads..." 
-                : "e.g., Focus on mid-career professionals who feel stuck..."}
-              value={seedNotes}
-              onChange={(e) => setSeedNotes(e.target.value)}
-              rows={4}
-            />
-          </div>
-
-          <Button 
-            onClick={handleGenerate} 
-            disabled={loading} 
-            className="w-full btn-brand"
-            size="lg"
-          >
-            {loading ? 'Generating...' : 'Generate Persona'}
-          </Button>
         </div>
-      </PageCard>
+      </div>
 
-      {/* Error */}
-      {error && (
-        <Alert variant="destructive" className="rounded-2xl">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Result */}
-      {persona && (
-        <Card className="border-0 shadow-xl rounded-3xl">
-          <CardHeader className="border-b border-slate-200/60 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div>
-                <CardTitle className="text-xl font-semibold text-slate-900">{persona.name}</CardTitle>
-                <CardDescription className="text-slate-600">
-                  {persona.product} • 
-                  {persona.audience_type === 'recruiter' ? ' Recruiter' : 
-                   persona.audience_type === 'smb_owner' ? ' SMB Owner' :
-                   persona.audience_type === 'agency_owner' ? ' Agency Owner' : ' Job Seeker'} • 
-                  {persona.age_range || (persona as any).ageRange}
-                  {(persona as any).location && ` • ${(persona as any).location}`}
-                </CardDescription>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left: Input Form */}
+        <div>
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Sparkles className="h-5 w-5 text-blue-600" />
+              <h2 className="text-lg font-semibold">Generate New Persona</h2>
             </div>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-6">
-            {/* Role and Industry */}
-            {((persona as any).roleOrTitle || (persona as any).industry) && (
-              <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                {(persona as any).roleOrTitle && (
-                  <div>
-                    <h4 className="text-xs font-semibold uppercase text-slate-500 mb-1">
-                      Role
-                    </h4>
-                    <p className="text-sm font-medium text-slate-900">{(persona as any).roleOrTitle}</p>
-                  </div>
-                )}
-                {(persona as any).industry && (
-                  <div>
-                    <h4 className="text-xs font-semibold uppercase text-slate-500 mb-1">
-                      Industry
-                    </h4>
-                    <p className="text-sm font-medium text-slate-900">{(persona as any).industry}</p>
-                  </div>
-                )}
+
+            <div className="space-y-4">
+              {/* Product */}
+              <div className="space-y-2">
+                <Label htmlFor="product">Product</Label>
+                <Select
+                  id="product"
+                  value={product}
+                  onValueChange={(value) => {
+                    const newProduct = value as Product;
+                    setProduct(newProduct);
+                    setAudienceType(getDefaultAudienceType(newProduct));
+                  }}
+                >
+                  <option value="CareerScaleUp">CareerScaleUp</option>
+                  <option value="Zevaux">Zevaux</option>
+                </Select>
+              </div>
+
+              {/* Audience Type */}
+              {product === 'CareerScaleUp' && (
+                <div className="space-y-2">
+                  <Label htmlFor="audience-type">Audience Type</Label>
+                  <Select
+                    id="audience-type"
+                    value={audienceType}
+                    onValueChange={(value) => setAudienceType(value as AudienceType)}
+                  >
+                    <option value="jobseeker">Job Seeker</option>
+                    <option value="recruiter">Recruiter / Hiring Team</option>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {audienceType === 'jobseeker'
+                      ? 'Persona for job seekers or career advancers'
+                      : 'Persona for recruiters, hiring managers, or HR professionals'}
+                  </p>
+                </div>
+              )}
+
+              {/* Zevaux Info */}
+              {product === 'Zevaux' && (
+                <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-950/20">
+                  <AlertDescription className="text-sm">
+                    <strong>Zevaux AI Receptionist:</strong> Personas will be for SMB owners, operations managers, or agencies needing 24/7 call handling and lead capture.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Seed Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="seed-notes">
+                  Seed Notes <span className="text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                <Textarea
+                  id="seed-notes"
+                  placeholder={product === 'Zevaux' 
+                    ? "e.g., Dentist practice losing calls after hours, HVAC contractor missing leads..." 
+                    : "e.g., Mid-career professionals who feel stuck, nurses looking for remote work..."}
+                  value={seedNotes}
+                  onChange={(e) => setSeedNotes(e.target.value)}
+                  rows={4}
+                />
+              </div>
+
+              {/* Generate Button */}
+              <Button 
+                onClick={handleGenerate} 
+                disabled={loading} 
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                size="lg"
+              >
+                {loading ? 'Generating...' : 'Generate Persona'}
+              </Button>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right: Results Panel */}
+        <div>
+          <Card className="p-6 min-h-[400px]">
+            <h2 className="text-lg font-semibold mb-4">Generated Persona</h2>
+            
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {!persona && !error && (
+              <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
+                <Users className="h-12 w-12 mb-3 opacity-20" />
+                <p>No persona generated yet</p>
+                <p className="text-sm">Fill out the form and click Generate</p>
               </div>
             )}
 
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">Description</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{persona.description}</p>
-            </div>
+            {persona && (
+              <div className="space-y-4">
+                {/* Name and Basic Info */}
+                <div className="pb-4 border-b">
+                  <h3 className="text-2xl font-bold text-blue-600 mb-1">{persona.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {persona.product} • {persona.audience_type}
+                  </p>
+                  {persona.age_range && (
+                    <p className="text-sm text-muted-foreground">Age: {persona.age_range}</p>
+                  )}
+                </div>
 
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">Pain Points</h3>
-              <ul className="space-y-2">
-                {persona.pain_points.map((point, i) => (
-                  <li key={i} className="text-sm text-slate-600 flex gap-2">
-                    <span className="text-red-500 font-bold">•</span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Description */}
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm uppercase text-muted-foreground">Description</h4>
+                  <p className="text-sm leading-relaxed">{persona.description}</p>
+                </div>
 
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">Goals</h3>
-              <ul className="space-y-2">
-                {persona.goals.map((goal, i) => (
-                  <li key={i} className="text-sm text-slate-600 flex gap-2">
-                    <span className="text-green-500 font-bold">•</span>
-                    <span>{goal}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Pain Points */}
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm uppercase text-muted-foreground">Pain Points</h4>
+                  <ul className="space-y-1">
+                    {persona.pain_points.map((point, i) => (
+                      <li key={i} className="text-sm flex items-start gap-2">
+                        <span className="text-red-500 mt-0.5">•</span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">Buying Triggers</h3>
-              <ul className="space-y-2">
-                {persona.buying_triggers.map((trigger, i) => (
-                  <li key={i} className="text-sm text-slate-600 flex gap-2">
-                    <span className="text-indigo-500 font-bold">•</span>
-                    <span>{trigger}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                {/* Goals */}
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm uppercase text-muted-foreground">Goals</h4>
+                  <ul className="space-y-1">
+                    {persona.goals.map((goal, i) => (
+                      <li key={i} className="text-sm flex items-start gap-2">
+                        <span className="text-green-500 mt-0.5">•</span>
+                        <span>{goal}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div className="pt-4 border-t border-slate-200">
-              <p className="text-xs text-slate-500">ID: {persona.id}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </AppShell>
+                {/* Buying Triggers */}
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm uppercase text-muted-foreground">Buying Triggers</h4>
+                  <ul className="space-y-1">
+                    {persona.buying_triggers.map((trigger, i) => (
+                      <li key={i} className="text-sm flex items-start gap-2">
+                        <span className="text-blue-500 mt-0.5">•</span>
+                        <span>{trigger}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
+    </LayoutShell>
   );
 }

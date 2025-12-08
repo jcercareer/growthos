@@ -1,12 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  generateBlogOutline,
-  listPersonas,
-  listMessagingForPersona,
-} from '@/lib/api';
-import type { BlogOutline, Persona, Messaging } from '@growth-os/shared';
+import { generateBlogOutline, listPersonas, listMessagingForPersona } from '@/lib/api';
+import type { GrowthOSResult, Persona, Messaging } from '@growth-os/shared';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -24,7 +20,7 @@ export default function BlogsPage() {
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingMessaging, setLoadingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [blogOutline, setBlogOutline] = useState<BlogOutline | null>(null);
+  const [blogGrowth, setBlogGrowth] = useState<GrowthOSResult | null>(null);
 
   // Load personas on mount
   useEffect(() => {
@@ -82,7 +78,7 @@ export default function BlogsPage() {
         personaId: selectedPersonaId,
         messagingId: selectedMessagingId,
       });
-      setBlogOutline(result);
+      setBlogGrowth(result.growth);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to generate blog outline'
@@ -91,9 +87,6 @@ export default function BlogsPage() {
       setLoading(false);
     }
   };
-
-  const selectedPersona = personas.find((p) => p.id === selectedPersonaId);
-  const selectedMsg = messaging.find((m) => m.id === selectedMessagingId);
 
   return (
     <AppShell
@@ -203,7 +196,7 @@ export default function BlogsPage() {
       )}
 
       {/* Result */}
-      {blogOutline && (
+      {blogGrowth && (
         <Card className="border-0 shadow-xl rounded-3xl">
           <CardHeader className="border-b border-slate-200/60 pb-4">
             <div className="flex items-center gap-3">
@@ -213,65 +206,96 @@ export default function BlogsPage() {
                 </svg>
               </div>
               <div>
-                <CardTitle className="text-xl font-semibold text-slate-900">{blogOutline.title}</CardTitle>
+                <CardTitle className="text-xl font-semibold text-slate-900">
+                  {blogGrowth.blocks.find((b) => b.type === 'hero')?.title || 'Blog Outline'}
+                </CardTitle>
                 <CardDescription className="text-slate-600">
-                  For {selectedPersona?.name} • {selectedPersona?.product}
+                  {blogGrowth.blocks.find((b) => b.type === 'hero')?.subtitle || blogGrowth.rawTextSummary}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">
-            {/* Meta Description */}
-            {blogOutline.outline.meta_description && (
-              <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                <h3 className="text-sm font-semibold text-indigo-900 mb-1">Meta Description</h3>
-                <p className="text-sm text-indigo-800">
-                  {blogOutline.outline.meta_description}
-                </p>
-              </div>
-            )}
-
             {/* Sections */}
             <div className="space-y-6">
               <h3 className="font-semibold text-slate-900">Outline</h3>
-              {blogOutline.outline.sections?.map((section, i) => (
-                <div key={i} className="border-l-2 border-indigo-500 pl-4 py-1">
-                  <h4 className="font-medium text-slate-900 mb-2">
-                    {i + 1}. {section.title}
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {section.points.map((bullet, j) => (
-                      <li key={j} className="text-sm text-slate-600 flex gap-2">
-                        <span className="text-slate-400">→</span>
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {blogGrowth.blocks
+                .filter((b) => b.type === 'section')
+                .map((section, i) => (
+                  <div key={section.id} className="border-l-2 border-indigo-500 pl-4 py-1">
+                    <h4 className="font-medium text-slate-900 mb-2">
+                      {i + 1}. {section.title}
+                    </h4>
+                    {section.bullets && (
+                      <ul className="space-y-1.5">
+                        {section.bullets.map((bullet, j) => (
+                          <li key={j} className="text-sm text-slate-600 flex gap-2">
+                            <span className="text-slate-400">→</span>
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            {/* Bullet Lists (e.g., key takeaways) */}
+            {blogGrowth.blocks
+              .filter((b) => b.type === 'bulletList')
+              .map((block) => (
+                <div key={block.id} className="space-y-2">
+                  <h3 className="font-semibold text-slate-900">{block.title || 'List'}</h3>
+                  {block.bullets && (
+                    <ul className="space-y-1.5">
+                      {block.bullets.map((bullet, j) => (
+                        <li key={j} className="text-sm text-slate-600 flex gap-2">
+                          <span className="text-slate-400">•</span>
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ))}
-            </div>
 
-            {/* SEO Keywords */}
-            {blogOutline.outline.seo_keywords &&
-              blogOutline.outline.seo_keywords.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-slate-900 mb-3">SEO Keywords</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {blogOutline.outline.seo_keywords.map((keyword, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
+            {/* CTA Block */}
+            {blogGrowth.blocks
+              .filter((b) => b.type === 'cta')
+              .map((cta) => (
+                <div
+                  key={cta.id}
+                  className="p-4 rounded-xl border bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20"
+                >
+                  <h4 className="text-lg font-semibold mb-1">{cta.title}</h4>
+                  <p className="text-sm text-muted-foreground mb-2">{cta.subtitle}</p>
+                  {cta.ctaLabel && (
+                    <a
+                      href={cta.ctaUrl || '#'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-semibold shadow-sm"
+                    >
+                      {cta.ctaLabel}
+                    </a>
+                  )}
                 </div>
-              )}
+              ))}
 
-            <div className="pt-4 border-t border-slate-200">
-              <p className="text-xs text-slate-500">ID: {blogOutline.id}</p>
-            </div>
+            {/* Image Prompts */}
+            {blogGrowth.imagePrompts && blogGrowth.imagePrompts.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-semibold text-slate-900">Image Prompts</h3>
+                <ul className="space-y-1 text-sm text-slate-700">
+                  {blogGrowth.imagePrompts.map((img) => (
+                    <li key={img.id}>
+                      <span className="font-semibold capitalize">{img.useCase}</span>: {img.prompt}
+                      {img.styleHint && <span className="text-slate-500"> ({img.styleHint})</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

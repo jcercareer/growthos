@@ -134,11 +134,16 @@ export async function listScriptsForPersona(
 // ============================================================
 // BLOG OUTLINE API
 // ============================================================
+export interface BlogOutlineGrowthResponse {
+  outline: BlogOutline;
+  growth: import('@growth-os/shared').GrowthOSResult;
+}
+
 export async function generateBlogOutline(input: {
   personaId: string;
   messagingId: string;
-}): Promise<BlogOutline> {
-  return fetchApi<BlogOutline>('/api/generate/blog-outline', {
+}): Promise<BlogOutlineGrowthResponse> {
+  return fetchApi<BlogOutlineGrowthResponse>('/api/generate/blog-outline', {
     method: 'POST',
     body: JSON.stringify(input),
   });

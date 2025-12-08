@@ -103,6 +103,9 @@ export interface CreateBlogOutlineInput {
   };
 }
 
+// GrowthOS structured content types
+export * from './growthos';
+
 // ============================================================
 // SOCIAL ANALYTICS TYPES
 // ============================================================

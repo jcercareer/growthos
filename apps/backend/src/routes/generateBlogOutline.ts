@@ -3,7 +3,14 @@ import { z } from 'zod';
 import { generateJSON } from '../aiClient';
 import { BlogOutlineSchema, BlogOutlineAIOutput } from '../aiSchemas';
 import { getPersonaById, getMessagingById, createBlogOutline } from '../repositories';
-import type { Product, Persona, Messaging } from '@growth-os/shared';
+import type {
+  Product,
+  Persona,
+  Messaging,
+  GrowthOSResult,
+  ContentBlock,
+  ImagePrompt,
+} from '@growth-os/shared';
 
 // ============================================================
 // SYSTEM PROMPT
@@ -191,10 +198,92 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
       },
     });
 
-    // Return saved record
+    // Map to GrowthOSResult structure for UI blocks + image prompts
+    const productName = persona.product;
+    const heroBlock: ContentBlock = {
+      id: 'hero-1',
+      type: 'hero',
+      title: validatedOutput.title,
+      subtitle: validatedOutput.meta_description,
+      body: `Blog outline for ${productName} tailored to ${persona.name}`,
+      emphasis: 'primary',
+      imageRefIds: ['img-hero'],
+    };
+
+    const sectionBlocks: ContentBlock[] = validatedOutput.sections.map((section, idx) => ({
+      id: `section-${idx + 1}`,
+      type: 'section',
+      title: section.heading,
+      bullets: section.bullets,
+    }));
+
+    const takeaways: ContentBlock = {
+      id: 'takeaways-1',
+      type: 'bulletList',
+      title: 'Key Takeaways',
+      bullets: validatedOutput.seo_keywords && validatedOutput.seo_keywords.length > 0
+        ? validatedOutput.seo_keywords
+        : ['Focus on persona pains', 'Show product fit', 'Include clear CTA'],
+    };
+
+    const ctaBlock: ContentBlock = {
+      id: 'cta-1',
+      type: 'cta',
+      title: `Try ${productName} today`,
+      subtitle: 'Put this playbook into action with AI that does the heavy lifting.',
+      ctaLabel: productName === 'CareerScaleUp' ? 'Optimize my resume' : 'Book more calls',
+      ctaUrl: productName === 'CareerScaleUp'
+        ? 'https://careerscaleup.com'
+        : 'https://zevaux.com',
+      emphasis: 'primary',
+    };
+
+    const imagePrompts: ImagePrompt[] = [
+      {
+        id: 'img-hero',
+        useCase: 'blogHeader',
+        prompt:
+          productName === 'CareerScaleUp'
+            ? 'Header image of a professional reviewing AI-enhanced resume insights on a laptop, hybrid SaaS + AI, clean white UI, purple/blue accent'
+            : 'Header image of an AI receptionist dashboard handling calls for an SMB, hybrid SaaS + AI, clean white UI, purple/blue accent',
+        styleHint: 'hybrid SaaS + AI, clean, purple/blue gradient',
+      },
+      {
+        id: 'img-ui-1',
+        useCase: 'uiMockup',
+        prompt:
+          productName === 'CareerScaleUp'
+            ? 'UI mockup showing ATS resume scan results with actionable fixes, modern SaaS dashboard'
+            : 'UI mockup showing missed-call auto-reply and appointment booking timeline for a local business',
+        styleHint: 'clean SaaS, rounded cards, subtle shadow',
+      },
+      {
+        id: 'img-ui-2',
+        useCase: 'uiMockup',
+        prompt:
+          productName === 'CareerScaleUp'
+            ? 'Comparison view of before/after resume keyword match score with AI suggestions'
+            : 'Lead qualification chat transcript and scoring panel inside AI receptionist dashboard',
+        styleHint: 'hybrid SaaS + AI, minimal, readable',
+      },
+    ];
+
+    const growthResult: GrowthOSResult = {
+      rawTextSummary:
+        validatedOutput.meta_description ||
+        `Blog outline for ${persona.name} (${productName}) focused on pains and product fit.`,
+      blocks: [heroBlock, ...sectionBlocks, takeaways, ctaBlock],
+      imagePrompts,
+      notes: 'Use blocks to render sections; pair hero with img-hero; use UI mockups inline.',
+    };
+
+    // Return saved record plus structured result
     res.status(201).json({
       success: true,
-      data: savedOutline,
+      data: {
+        outline: savedOutline,
+        growth: growthResult,
+      },
     });
   } catch (error) {
     console.error('Error generating blog outline:', error);

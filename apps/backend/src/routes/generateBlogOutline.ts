@@ -11,6 +11,7 @@ import type {
   ContentBlock,
   ImagePrompt,
 } from '@growth-os/shared';
+import { openai } from '../aiClient';
 
 // ============================================================
 // SYSTEM PROMPT
@@ -269,13 +270,40 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
       },
     ];
 
+    const images: GrowthOSResult['images'] = [];
+
+    // Optional: generate actual images if requested
+    if (input.generateImages) {
+      const maxImages = Math.min(imagePrompts.length, 2);
+      for (let i = 0; i < maxImages; i++) {
+        const promptDef = imagePrompts[i];
+        try {
+          const imgResp = await openai.images.generate({
+            model: 'gpt-image-1',
+            prompt: `${promptDef.prompt} ${promptDef.styleHint || ''}`,
+            size: '1024x1024',
+          });
+          const url = imgResp.data?.[0]?.url;
+          if (url) {
+            images.push({
+              url,
+              useCase: promptDef.useCase,
+              prompt: promptDef.prompt,
+            });
+          }
+        } catch (err) {
+          console.error('Image generation failed:', err);
+        }
+      }
+    }
+
     const growthResult: GrowthOSResult = {
       rawTextSummary:
         validatedOutput.meta_description ||
         `Blog outline for ${persona.name} (${productName}) focused on pains and product fit.`,
       blocks: [heroBlock, ...sectionBlocks, takeaways, ctaBlock],
       imagePrompts,
-      images: [], // image generation not yet wired; ready for future use
+      images,
       notes: 'Use blocks to render sections; pair hero with img-hero; use UI mockups inline.',
     };
 

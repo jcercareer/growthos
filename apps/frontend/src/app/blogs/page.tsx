@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { generateBlogOutline, listPersonas, listMessagingForPersona } from '@/lib/api';
+import { generateBlogOutline, listPersonas, listMessagingForPersona, generateMessaging } from '@/lib/api';
 import type { GrowthOSResult, Persona, Messaging } from '@growth-os/shared';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ export default function BlogsPage() {
   const [loading, setLoading] = useState(false);
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingMessaging, setLoadingMessaging] = useState(false);
+  const [generatingMessaging, setGeneratingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [blogGrowth, setBlogGrowth] = useState<GrowthOSResult | null>(null);
   const selectedMsg = messaging.find((m) => m.id === selectedMessagingId);
@@ -143,11 +144,33 @@ export default function BlogsPage() {
                     Loading messaging...
                   </p>
                 ) : messaging.length === 0 ? (
+                <div className="space-y-2">
                   <Alert>
                     <AlertDescription>
                       No messaging found for this persona. Generate messaging first.
                     </AlertDescription>
                   </Alert>
+                  <Button
+                    onClick={async () => {
+                      setGeneratingMessaging(true);
+                      setError(null);
+                      try {
+                        const msg = await generateMessaging({ personaId: selectedPersonaId });
+                        setMessaging([msg]);
+                        setSelectedMessagingId(msg.id);
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : 'Failed to generate messaging');
+                      } finally {
+                        setGeneratingMessaging(false);
+                      }
+                    }}
+                    disabled={generatingMessaging}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    {generatingMessaging ? 'Generating...' : 'Generate Messaging'}
+                  </Button>
+                </div>
                 ) : (
                   <>
                     <Select

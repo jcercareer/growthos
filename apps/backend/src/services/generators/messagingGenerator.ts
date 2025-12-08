@@ -37,8 +37,16 @@ export async function generateMessagingForPersona(
   // Generate with OpenAI
   const aiOutput = await generateJSON<any>(combinedSystemPrompt, finalUserPrompt);
 
+  // Normalize camelCase → snake_case if the model returns mixed keys
+  const normalized = {
+    headline: aiOutput.headline,
+    emotional_hook: aiOutput.emotional_hook ?? aiOutput.emotionalHook,
+    elevator_pitch: aiOutput.elevator_pitch ?? aiOutput.elevatorPitch,
+    viral_taglines: aiOutput.viral_taglines ?? aiOutput.viralTaglines,
+  };
+
   // Validate AI output with Zod
-  const validatedOutput = MessagingSchema.parse(aiOutput);
+  const validatedOutput = MessagingSchema.parse(normalized);
 
   // Save to database
   const savedMessaging = await createMessaging({

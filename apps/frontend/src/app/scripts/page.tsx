@@ -5,6 +5,7 @@ import {
   generateScript,
   listPersonas,
   listMessagingForPersona,
+  generateMessaging,
 } from '@/lib/api';
 import type { Script, Persona, Messaging } from '@growth-os/shared';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AppShell } from '@/components/AppShell';
 import { PageCard } from '@/components/PageCard';
+import { OutputToolbar } from '@/components/OutputToolbar';
 
 type Platform = 'tiktok' | 'reels' | 'shorts';
 
@@ -26,6 +28,7 @@ export default function ScriptsPage() {
   const [loading, setLoading] = useState(false);
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingMessaging, setLoadingMessaging] = useState(false);
+  const [generatingMessaging, setGeneratingMessaging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [script, setScript] = useState<Script | null>(null);
 
@@ -154,11 +157,33 @@ export default function ScriptsPage() {
                   {loadingMessaging ? (
                     <p className="text-sm text-slate-600">Loading messaging...</p>
                   ) : messaging.length === 0 ? (
-                    <Alert>
-                      <AlertDescription>
-                        No messaging found for this persona. Generate messaging first.
-                      </AlertDescription>
-                    </Alert>
+                    <div className="space-y-2">
+                      <Alert>
+                        <AlertDescription>
+                          No messaging found for this persona. Generate messaging first.
+                        </AlertDescription>
+                      </Alert>
+                      <Button
+                        onClick={async () => {
+                          setGeneratingMessaging(true);
+                          setError(null);
+                          try {
+                            const msg = await generateMessaging({ personaId: selectedPersonaId });
+                            setMessaging([msg]);
+                            setSelectedMessagingId(msg.id);
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : 'Failed to generate messaging');
+                          } finally {
+                            setGeneratingMessaging(false);
+                          }
+                        }}
+                        disabled={generatingMessaging}
+                        variant="secondary"
+                        size="sm"
+                      >
+                        {generatingMessaging ? 'Generating...' : 'Generate Messaging'}
+                      </Button>
+                    </div>
                   ) : (
                     <>
                       <Select
@@ -288,20 +313,10 @@ export default function ScriptsPage() {
               <p className="text-xs text-slate-500">
                 Platform: {script.script_type} • ID: {script.id}
               </p>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(script.content);
-                  alert('Script copied to clipboard!');
-                }}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy Script
-              </Button>
+              <OutputToolbar
+                onCopy={() => navigator.clipboard.writeText(script.content)}
+                onRegenerate={handleGenerate}
+              />
             </div>
           </CardContent>
         </Card>

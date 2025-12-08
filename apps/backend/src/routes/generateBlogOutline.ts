@@ -133,6 +133,7 @@ Return ONLY the JSON object that matches the shape above.`;
 const GenerateBlogOutlineInputSchema = z.object({
   personaId: z.string().uuid(),
   messagingId: z.string().uuid(),
+  generateImages: z.boolean().optional(),
 });
 
 export async function generateBlogOutlineHandler(req: Request, res: Response) {
@@ -274,6 +275,7 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
         `Blog outline for ${persona.name} (${productName}) focused on pains and product fit.`,
       blocks: [heroBlock, ...sectionBlocks, takeaways, ctaBlock],
       imagePrompts,
+      images: [], // image generation not yet wired; ready for future use
       notes: 'Use blocks to render sections; pair hero with img-hero; use UI mockups inline.',
     };
 

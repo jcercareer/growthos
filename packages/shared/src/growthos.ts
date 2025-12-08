@@ -45,6 +45,11 @@ export interface GrowthOSResult {
   rawTextSummary: string; // 2–3 paragraph summary
   blocks: ContentBlock[];
   imagePrompts: ImagePrompt[];
+  images?: Array<{
+    url: string;
+    useCase: ImagePrompt['useCase'];
+    prompt: string;
+  }>;
   notes?: string; // implementation hints for humans
 }
 

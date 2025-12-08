@@ -17,6 +17,7 @@ export default function BlogsPage() {
   const [messaging, setMessaging] = useState<Messaging[]>([]);
   const [selectedPersonaId, setSelectedPersonaId] = useState('');
   const [selectedMessagingId, setSelectedMessagingId] = useState('');
+  const [generateImages, setGenerateImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingMessaging, setLoadingMessaging] = useState(false);
@@ -79,6 +80,7 @@ export default function BlogsPage() {
       const result = await generateBlogOutline({
         personaId: selectedPersonaId,
         messagingId: selectedMessagingId,
+        generateImages,
       });
       setBlogGrowth(result.growth);
     } catch (err) {
@@ -170,6 +172,16 @@ export default function BlogsPage() {
                   </>
                 )}
               </div>
+
+              <label className="flex items-center gap-2 text-sm text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={generateImages}
+                  onChange={(e) => setGenerateImages(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                Generate images with this content
+              </label>
 
               <Button
                 onClick={handleGenerate}
@@ -305,6 +317,35 @@ export default function BlogsPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* Generated Images (if any) */}
+            {blogGrowth.images && blogGrowth.images.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-slate-900">Generated Images</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {blogGrowth.images.map((img, idx) => (
+                    <div key={idx} className="border rounded-xl overflow-hidden shadow-sm bg-white">
+                      <div className="aspect-video bg-slate-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt={img.useCase} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="p-3 space-y-1">
+                        <p className="text-xs font-semibold uppercase text-slate-500">{img.useCase}</p>
+                        <p className="text-sm text-slate-700 line-clamp-3">{img.prompt}</p>
+                        <a
+                          href={img.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>

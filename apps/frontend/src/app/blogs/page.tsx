@@ -26,6 +26,48 @@ export default function BlogsPage() {
   const [blogGrowth, setBlogGrowth] = useState<GrowthOSResult | null>(null);
   const selectedMsg = messaging.find((m) => m.id === selectedMessagingId);
 
+  const buildExportText = () => {
+    if (!blogGrowth) return '';
+    const hero = blogGrowth.blocks.find((b) => b.type === 'hero');
+    const sections = blogGrowth.blocks.filter((b) => b.type === 'section');
+    const lists = blogGrowth.blocks.filter((b) => b.type === 'bulletList');
+    const ctas = blogGrowth.blocks.filter((b) => b.type === 'cta');
+
+    let output = '';
+    output += `${hero?.title || 'Blog Outline'}\n${hero?.subtitle || ''}\n\n`;
+    sections.forEach((s, idx) => {
+      output += `${idx + 1}. ${s.title}\n`;
+      s.bullets?.forEach((b) => (output += `- ${b}\n`));
+      if (s.body) output += `${s.body}\n`;
+      output += '\n';
+    });
+    lists.forEach((l) => {
+      output += `${l.title || 'List'}\n`;
+      l.bullets?.forEach((b) => (output += `- ${b}\n`));
+      output += '\n';
+    });
+    ctas.forEach((c) => {
+      output += `CTA: ${c.title}\n${c.subtitle || ''}\n${c.ctaLabel || ''} -> ${c.ctaUrl || '#'}\n\n`;
+    });
+    if (blogGrowth.imagePrompts?.length) {
+      output += 'Image Prompts:\n';
+      blogGrowth.imagePrompts.forEach((img) => {
+        output += `- [${img.useCase}] ${img.prompt} ${img.styleHint ? `(${img.styleHint})` : ''}\n`;
+      });
+    }
+    return output.trim();
+  };
+
+  const downloadFile = (content: string, filename: string, mime: string) => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // Load personas on mount
   useEffect(() => {
     const loadPersonas = async () => {
@@ -259,6 +301,20 @@ export default function BlogsPage() {
                 }}
                 onRegenerate={handleGenerate}
               />
+            </div>
+            <div className="flex gap-2 pb-2 justify-end">
+              <button
+                onClick={() => downloadFile(buildExportText(), 'blog-outline.docx', 'application/msword')}
+                className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
+              >
+                Download DOCX
+              </button>
+              <button
+                onClick={() => downloadFile(buildExportText(), 'blog-outline.pdf', 'application/pdf')}
+                className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
+              >
+                Download PDF
+              </button>
             </div>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">

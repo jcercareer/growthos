@@ -270,54 +270,8 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
       },
     ];
 
+    // Image generation disabled per request; keep prompts but return empty images
     const images: GrowthOSResult['images'] = [];
-
-    // Helper: fallback to free stock (Unsplash) if AI images unavailable
-    const addStockImages = () => {
-      const maxImages = Math.min(imagePrompts.length, 2);
-      for (let i = 0; i < maxImages; i++) {
-        const promptDef = imagePrompts[i];
-        const q = encodeURIComponent(promptDef.prompt.slice(0, 120));
-        images.push({
-          url: `https://source.unsplash.com/featured/?${q}`,
-          useCase: promptDef.useCase,
-          prompt: promptDef.prompt,
-        });
-      }
-    };
-
-    // Optional: generate actual images if requested
-    if (input.generateImages) {
-      const maxImages = Math.min(imagePrompts.length, 2);
-      let generated = 0;
-      for (let i = 0; i < maxImages; i++) {
-        const promptDef = imagePrompts[i];
-        try {
-          const imgResp = await openai.images.generate({
-            // Known stable model; adjust if needed
-            model: 'dall-e-3',
-            prompt: `${promptDef.prompt} ${promptDef.styleHint || ''}`,
-            size: '1024x1024',
-          });
-          const url = imgResp.data?.[0]?.url;
-          if (url) {
-            images.push({
-              url,
-              useCase: promptDef.useCase,
-              prompt: promptDef.prompt,
-            });
-            generated++;
-          }
-        } catch (err) {
-          console.error('Image generation failed:', err);
-        }
-      }
-
-      // Fallback to stock if nothing returned
-      if (generated === 0) {
-        addStockImages();
-      }
-    }
 
     const growthResult: GrowthOSResult = {
       rawTextSummary:

@@ -17,7 +17,6 @@ export default function BlogsPage() {
   const [messaging, setMessaging] = useState<Messaging[]>([]);
   const [selectedPersonaId, setSelectedPersonaId] = useState('');
   const [selectedMessagingId, setSelectedMessagingId] = useState('');
-  const [generateImages, setGenerateImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingPersonas, setLoadingPersonas] = useState(true);
   const [loadingMessaging, setLoadingMessaging] = useState(false);
@@ -123,7 +122,6 @@ export default function BlogsPage() {
       const result = await generateBlogOutline({
         personaId: selectedPersonaId,
         messagingId: selectedMessagingId,
-        generateImages,
       });
       setBlogGrowth(result.growth);
     } catch (err) {
@@ -238,16 +236,6 @@ export default function BlogsPage() {
                 )}
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-slate-600">
-                <input
-                  type="checkbox"
-                  checked={generateImages}
-                  onChange={(e) => setGenerateImages(e.target.checked)}
-                  className="h-4 w-4"
-                />
-                Generate images with this content
-              </label>
-
               <Button
                 onClick={handleGenerate}
                 disabled={
@@ -304,16 +292,10 @@ export default function BlogsPage() {
             </div>
             <div className="flex gap-2 pb-2 justify-end">
               <button
-                onClick={() => downloadFile(buildExportText(), 'blog-outline.docx', 'application/msword')}
+                onClick={() => downloadFile(buildExportText(), 'blog-outline.txt', 'text/plain')}
                 className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
               >
-                Download DOCX
-              </button>
-              <button
-                onClick={() => downloadFile(buildExportText(), 'blog-outline.pdf', 'application/pdf')}
-                className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
-              >
-                Download PDF
+                Download TXT
               </button>
             </div>
           </CardHeader>

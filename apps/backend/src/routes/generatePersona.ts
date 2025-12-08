@@ -61,6 +61,7 @@ Persona requirements:
 - Use U.S. business context: missed calls, lead leakage, staff overwhelm, competitor pressure, low budgets, time pressure.
 - Use authentic emotional drivers: frustration, anxiety, fear of losing revenue, desire for control and growth.
 - Do NOT produce generic templates. Each persona must feel like a specific, believable person with a realistic backstory and constraints.
+- Use diverse, realistic U.S. names (avoid repeating the same names like "Emily Johnson"; rotate genders, ethnicities, regions). Each run should vary names and details to prevent repetition.
 
 Output policy:
 - Output ONLY the JSON object defined by our Zod schema.

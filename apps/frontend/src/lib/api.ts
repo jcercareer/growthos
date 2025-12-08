@@ -142,6 +142,7 @@ export interface BlogOutlineGrowthResponse {
 export async function generateBlogOutline(input: {
   personaId: string;
   messagingId: string;
+  generateImages?: boolean;
 }): Promise<BlogOutlineGrowthResponse> {
   return fetchApi<BlogOutlineGrowthResponse>('/api/generate/blog-outline', {
     method: 'POST',

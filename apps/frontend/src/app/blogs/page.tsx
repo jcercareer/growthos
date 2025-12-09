@@ -57,112 +57,13 @@ export default function BlogsPage() {
     return output.trim();
   };
 
-  const downloadDocx = async () => {
-    if (!blogGrowth) return;
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import('docx');
-
-    const doc = new Document({
-      sections: [
-        {
-          children: [
-            new Paragraph({
-              text: blogGrowth.blocks.find((b) => b.type === 'hero')?.title || 'Blog Outline',
-              heading: HeadingLevel.HEADING_1,
-            }),
-            new Paragraph({
-              text: blogGrowth.blocks.find((b) => b.type === 'hero')?.subtitle || blogGrowth.rawTextSummary,
-            }),
-            ...blogGrowth.blocks
-              .filter((b) => b.type === 'section')
-              .flatMap((section, idx) => [
-                new Paragraph({
-                  text: `${idx + 1}. ${section.title}`,
-                  heading: HeadingLevel.HEADING_2,
-                  spacing: { before: 200, after: 100 },
-                }),
-                ...(section.bullets || []).map(
-                  (bullet) =>
-                    new Paragraph({
-                      text: bullet,
-                      bullet: { level: 0 },
-                    })
-                ),
-                section.body ? new Paragraph(section.body) : null,
-              ])
-              .filter(Boolean) as Paragraph[],
-            ...blogGrowth.blocks
-              .filter((b) => b.type === 'bulletList')
-              .flatMap((list) => [
-                new Paragraph({
-                  text: list.title || 'List',
-                  heading: HeadingLevel.HEADING_3,
-                  spacing: { before: 200, after: 100 },
-                }),
-                ...(list.bullets || []).map(
-                  (bullet) =>
-                    new Paragraph({
-                      text: bullet,
-                      bullet: { level: 0 },
-                    })
-                ),
-              ]),
-            ...blogGrowth.blocks
-              .filter((b) => b.type === 'cta')
-              .map(
-                (cta) =>
-                  new Paragraph({
-                    children: [
-                      new TextRun({ text: cta.title || 'CTA', bold: true }),
-                      new TextRun({ text: ` ${cta.subtitle || ''}` }),
-                      new TextRun({ text: ` ${cta.ctaLabel || ''} -> ${cta.ctaUrl || ''}` }),
-                    ],
-                    spacing: { before: 200, after: 100 },
-                  })
-              ),
-          ],
-        },
-      ],
-    });
-
-    const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'blog-outline.docx';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const downloadPdf = async () => {
-    if (!blogGrowth) return;
-    const { PDFDocument, StandardFonts } = await import('pdf-lib');
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage();
-    const { width, height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
+  const downloadTxt = () => {
     const text = buildExportText();
-    const fontSize = 11;
-    const margin = 40;
-    const maxWidth = width - margin * 2;
-    const lines = text.split('\n');
-
-    let y = height - margin;
-    for (const line of lines) {
-      if (y < margin) {
-        page.drawText('...', { x: margin, y, size: fontSize, font });
-        break;
-      }
-      page.drawText(line, { x: margin, y, size: fontSize, font, maxWidth });
-      y -= fontSize + 4;
-    }
-
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'blog-outline.pdf';
+    a.download = 'blog-outline.txt';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -392,16 +293,10 @@ export default function BlogsPage() {
             </div>
             <div className="flex gap-2 pb-2 justify-end">
               <button
-                onClick={downloadDocx}
+                onClick={downloadTxt}
                 className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
               >
-                Download DOCX
-              </button>
-              <button
-                onClick={downloadPdf}
-                className="text-xs px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200"
-              >
-                Download PDF
+                Download TXT
               </button>
             </div>
           </CardHeader>

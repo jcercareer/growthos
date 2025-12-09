@@ -53,6 +53,7 @@ export const BlogOutlineSchema = z.object({
       z.object({
         heading: z.string().min(5).max(200),
         bullets: z.array(z.string().min(5).max(500)).min(1).max(10),
+        body: z.string().min(30).max(1200).optional(),
       })
     )
     .min(3)

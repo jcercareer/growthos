@@ -104,7 +104,8 @@ JSON shape to output (no extra fields):
   "sections": [
     {
       "heading": string,
-      "bullets": string[]
+      "bullets": string[],
+      "body": string // 2–4 sentences summarizing the section in paragraph form
     }
   ],
   "seo_keywords": string[],
@@ -123,6 +124,7 @@ Content rules:
     - Show how ${product} features fix those issues step by step
     - Offer a simple action plan for the reader
   - Bullets should be specific and practical, not vague advice.
+  - Each section should also include a short paragraph (2–4 sentences) in "body" that reads naturally (not bullet-y).
 - SEO:
   - seoKeywords must be 6–12 phrases the persona might actually search for on Google (e.g., for CareerScaleUp: "beat ATS resume", "AI resume for U.S. jobs"; for Zevaux: "AI receptionist for small business", "automate missed call follow up").
 - Use U.S. spelling and examples.
@@ -217,6 +219,7 @@ export async function generateBlogOutlineHandler(req: Request, res: Response) {
       type: 'section',
       title: section.heading,
       bullets: section.bullets,
+      body: section.body,
     }));
 
     const takeaways: ContentBlock = {

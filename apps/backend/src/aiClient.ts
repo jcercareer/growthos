@@ -21,8 +21,16 @@ function getOpenAIClient(): OpenAI {
   return openaiInstance;
 }
 
-// Export the client getter for direct use (e.g., in validators)
-export const openai = getOpenAIClient();
+// Export a proxy that lazy-loads the client for direct use (e.g., in validators)
+// so the server can start without OPENAI_API_KEY; the error is only thrown when
+// an OpenAI-backed feature is actually used.
+export const openai = new Proxy({} as OpenAI, {
+  get(_target, prop) {
+    const client = getOpenAIClient();
+    const value = client[prop as keyof OpenAI];
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});
 
 /**
  * Call OpenAI with strict JSON output mode
